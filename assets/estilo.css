@@ -355,3 +355,7 @@ html.sin-scroll { overflow: hidden; }
 .paso-icono svg { width: 1.35rem; height: 1.35rem; }
 .paso-icono::before { content: counter(paso); position: absolute; top: -.45rem; left: -.45rem; width: 1.15rem; height: 1.15rem; border-radius: 50%; background: var(--oro); color: var(--noche); font-size: .72rem; font-weight: 700; display: grid; place-items: center; }
 .instalar-ya { width: 100%; justify-content: center; margin: .6rem 0; }
+
+/* Catálogo de documentos por grupos */
+.tarjetas .grupo-docs { grid-column: 1 / -1; list-style: none; font-family: var(--display); font-size: 1.55rem; color: var(--oro-claro); margin: 1.4rem 0 -.2rem; padding-bottom: .35rem; border-bottom: 1px solid var(--filete-suave); }
+.tarjetas .grupo-docs:first-child { margin-top: 0; }

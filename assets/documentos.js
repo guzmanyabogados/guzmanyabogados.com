@@ -346,6 +346,165 @@
         { id: "sustituir", et: "¿El apoderado puede pasar el poder a otra persona?", tipo: "radio", op: SI_NO, def: "no" }
       ]),
       adicional: "Facultades adicionales (opcional, bajo su responsabilidad)"
+    },
+    aviso_arrendatario: {
+      nombre: "Aviso del arrendatario para entregar el inmueble", corto: "Aviso para entregar la vivienda", precio: { auto: 20000, abogado: 60000 },
+      desc: "Carta al arrendador para entregar la vivienda al vencimiento, o antes pagando la indemnización.",
+      consejos: ["La carta debe llegarle al arrendador con no menos de tres (3) meses de anticipación a la fecha de entrega (artículo 24 de la Ley 820 de 2003).", "Envíela por servicio postal autorizado (correo certificado) a la dirección que figura en el contrato y guarde la guía y una copia: sin esa constancia el aviso no vale.", "Si el arrendador no quiere recibir el inmueble, consulte con el abogado: la ley permite entregarlo ante la autoridad competente."],
+      sinAnexos: 1, firmaEt: ["Municipio desde donde envía la carta", "Fecha de la carta"],
+      roles: [{ id: "arrendatario", et: "Quien entrega el inmueble (arrendatario)", min: 1, max: 3, p: { contacto: 2 } }],
+      campos: [
+        { g: "A quién va dirigida" },
+        { id: "destTrato", et: "Tratamiento", tipo: "select", op: [["Señor", "Señor"], ["Señora", "Señora"], ["Señores", "Señores (inmobiliaria o empresa)"]] },
+        { id: "destNombre", et: "Nombre del arrendador o de la inmobiliaria", mayus: 1 },
+        { id: "destDireccion", et: "Dirección del arrendador", ayuda: "La que figura en el contrato." },
+        { id: "destMunicipio", et: "Municipio del arrendador" },
+        { g: "El inmueble y el contrato" },
+        { id: "inDireccion", et: "Dirección del inmueble, con barrio", ph: "Ej.: Calle 52 # 49-10, apartamento 301, barrio Centro" },
+        { id: "inMunicipio", et: "Municipio del inmueble" },
+        { id: "fechaContrato", et: "Fecha del contrato", tipo: "fecha" },
+        { id: "opcion", et: "¿Cuándo entrega?", tipo: "radio", op: [["vencimiento", "Al vencimiento del contrato o de la prórroga, sin pagar nada"], ["anticipado", "Antes del vencimiento, pagando tres cánones de indemnización"]], def: "vencimiento" },
+        { id: "fechaVencimiento", et: "Fecha en que vence el contrato o la prórroga", tipo: "fecha", si: ["opcion", "vencimiento"] },
+        { id: "fechaTerminacion", et: "Fecha en que entrega el inmueble", tipo: "fecha", si: ["opcion", "anticipado"] },
+        { id: "canon", et: "Canon mensual actual", tipo: "dinero", si: ["opcion", "anticipado"] }
+      ],
+      adicional: null
+    },
+    cuenta_cobro_canones: {
+      nombre: "Cuenta de cobro y requerimiento de pago de cánones", corto: "Cobro de cánones atrasados", precio: { auto: 20000, abogado: 60000 },
+      desc: "Para cobrarle al arrendatario los cánones en mora, con la liquidación de intereses, sin terminar el contrato.",
+      consejos: ["Sirve para cobrar sin dar por terminado el contrato. Si la mora sigue, el paso siguiente es terminar el contrato o demandar: consulte con el abogado.", "Envíela a la dirección o al correo electrónico que figuran en el contrato y guarde la guía o la constancia de envío."],
+      sinAnexos: 1, firmaEt: ["Municipio desde donde envía la cuenta", "Fecha de la cuenta (a esta fecha se liquidan los intereses)"],
+      roles: [{ id: "arrendador", et: "Quien cobra (arrendador)", min: 1, max: 1, p: { juridica: 1, contacto: 2 } }],
+      campos: [
+        { g: "A quién va dirigida" },
+        { id: "destTrato", et: "Tratamiento", tipo: "select", op: [["Señor", "Señor"], ["Señora", "Señora"], ["Señores", "Señores (varias personas o empresa)"]] },
+        { id: "arrendatarioNombre", et: "Nombre de la parte arrendataria", mayus: 1, ayuda: "Si son varios, escríbalos separados con «y»." },
+        { id: "codeudorNombre", et: "Nombre del codeudor solidario", req: 0, mayus: 1 },
+        { id: "inDireccion", et: "Dirección del inmueble arrendado" },
+        { id: "inMunicipio", et: "Municipio del inmueble" },
+        { g: "El contrato y la deuda" },
+        { id: "tipoContrato", et: "El arriendo es de", tipo: "radio", op: [["vivienda", "Vivienda"], ["local", "Local comercial"]], def: "vivienda" },
+        { id: "fechaContrato", et: "Fecha de inicio del contrato", tipo: "fecha" },
+        { id: "canon", et: "Canon mensual", tipo: "dinero" },
+        { id: "diasPago", et: "El canon se paga dentro de los primeros … días de cada mes", tipo: "numero", def: "5" },
+        { id: "clausulaPago", et: "Cláusula del contrato que fija el pago", req: 0, ph: "Ej.: CUARTA" },
+        { id: "primerVence", et: "Último día para pagar el primer canon que se debe", tipo: "fecha", ayuda: "Ej.: si el canon de septiembre debía pagarse hasta el 5 de septiembre, elija esa fecha." },
+        { id: "meses", et: "Número de cánones que se deben", tipo: "numero" },
+        { id: "tasaTipo", et: "Intereses de mora", tipo: "radio", op: [["legal", "6 % anual (el contrato no pacta intereses)"], ["pactada", "La tasa pactada en el contrato"]], def: "legal", ayuda: "En local comercial entre comerciantes, si no hay tasa pactada, aplica el artículo 884 del Código de Comercio: pida la revisión del abogado." },
+        { id: "clausulaInteres", et: "Cláusula de los intereses", ph: "Ej.: QUINTA", si: ["tasaTipo", "pactada"] },
+        { id: "tasaPactada", et: "Tasa de mora pactada (% mensual)", tipo: "numero", si: ["tasaTipo", "pactada"], ayuda: "Nunca puede superar la tasa de usura." },
+        { id: "fechaLimite", et: "Fecha límite para pagar", tipo: "fecha" },
+        { id: "clausulaTerminacion", et: "Cláusula del contrato sobre terminación por incumplimiento", req: 0, ph: "Ej.: DÉCIMA" },
+        { id: "clausulaPena", et: "Cláusula penal del contrato (si la hay)", req: 0, ph: "Ej.: DÉCIMA PRIMERA" }
+      ],
+      adicional: null
+    },
+    recibo_abono: {
+      nombre: "Recibo de abono o de pago total de deuda", corto: "Recibo de abono o paz y salvo", precio: { auto: 20000, abogado: 60000 },
+      desc: "Constancia de un abono o del pago total de una hipoteca, pagaré, letra o saldo de una promesa o compraventa.",
+      consejos: ["Lo firma quien recibe el dinero; quien paga firma solo para aceptar el saldo, cuando es un abono.", "Diga siempre cuánto del pago va a intereses y cuánto a capital: si no se dice, la ley lo aplica primero a los intereses (artículo 1653 del Código Civil).", "Si hay pagaré o letra, anote también el abono al respaldo del título, con fecha y firma."],
+      sinAnexos: 1,
+      roles: [{ id: "acreedor", et: "Quien recibe el dinero (acreedor)", min: 1, max: 1, p: { juridica: 1, contacto: 1 } },
+        { id: "deudor", et: "Quien paga (deudor)", min: 1, max: 1, p: { simple: 1 } }],
+      campos: [
+        { g: "El pago" },
+        { id: "valor", et: "Valor recibido", tipo: "dinero" },
+        { id: "fechaPago", et: "Fecha del pago", tipo: "fecha" },
+        { id: "medio", et: "¿Cómo se pagó?", tipo: "radio", op: [["efectivo", "En efectivo"], ["transferencia", "Por transferencia"]], def: "efectivo" },
+        { id: "tipoCuenta", et: "Tipo de cuenta", tipo: "select", op: [["de ahorros", "Ahorros"], ["corriente", "Corriente"]], si: ["medio", "transferencia"] },
+        { id: "cuenta", et: "Número de la cuenta", si: ["medio", "transferencia"] },
+        { id: "banco", et: "Banco", si: ["medio", "transferencia"] },
+        { g: "La deuda" },
+        { id: "obligacion", et: "El pago se aplica a", tipo: "select", op: [["titulo", "Un pagaré o una letra de cambio"], ["hipoteca", "Una deuda con hipoteca"], ["precio", "El saldo de una promesa o de una compraventa"], ["otra", "Otra deuda"]] },
+        { id: "tituloTipo", et: "Título", tipo: "radio", op: [["pagare", "Pagaré"], ["letra", "Letra de cambio"]], def: "pagare", si: ["obligacion", "titulo"] },
+        { id: "tituloNumero", et: "Número del título", si: ["obligacion", "titulo"] },
+        { id: "tituloFecha", et: "Fecha del título", tipo: "fecha", si: ["obligacion", "titulo"] },
+        { id: "tituloValor", et: "Valor del título", tipo: "dinero", si: ["obligacion", "titulo"] },
+        { id: "hipEscritura", et: "Número de la escritura de la hipoteca", si: ["obligacion", "hipoteca"] },
+        { id: "hipFecha", et: "Fecha de la escritura", tipo: "fecha", si: ["obligacion", "hipoteca"] },
+        { id: "hipNotaria", et: "Notaría", ph: "Ej.: Primera", si: ["obligacion", "hipoteca"] },
+        { id: "hipCiudad", et: "Municipio de la notaría", si: ["obligacion", "hipoteca"] },
+        { id: "negocio", et: "Negocio", tipo: "radio", op: [["promesa", "Promesa de compraventa"], ["compraventa", "Compraventa"]], def: "promesa", si: ["obligacion", "precio"] },
+        { id: "negocioFecha", et: "Fecha del negocio", tipo: "fecha", si: ["obligacion", "precio"] },
+        { id: "negocioObjeto", et: "Sobre qué es el negocio", ph: "Ej.: el apartamento 301 de la Calle 52 # 49-10 de Itagüí", si: ["obligacion", "precio"] },
+        { id: "otraObligacion", et: "Describa la deuda", tipo: "area", si: ["obligacion", "otra"] },
+        { g: "¿Es un abono o el pago total?" },
+        { id: "opcion", et: "Con este pago", tipo: "radio", op: [["abono", "Se abona y queda un saldo"], ["total", "Se paga todo (paz y salvo)"]], def: "abono" },
+        { id: "intereses", et: "De lo recibido, va a intereses", tipo: "dinero", req: 0, si: ["opcion", "abono"], ayuda: "Si no va nada a intereses, déjelo en blanco." },
+        { id: "interesesHasta", et: "Intereses pagados hasta el", tipo: "fecha", req: 0, si: ["opcion", "abono"] },
+        { id: "capital", et: "De lo recibido, va a capital", tipo: "dinero", si: ["opcion", "abono"] },
+        { id: "saldo", et: "Saldo de capital después del abono", tipo: "dinero", si: ["opcion", "abono"] },
+        { id: "totalPagado", et: "Total pagado hasta hoy, con este abono (opcional)", tipo: "dinero", req: 0, si: ["opcion", "abono"] },
+        { id: "cancelacionDias", et: "Si es pago total de hipoteca: días para firmar la cancelación", tipo: "numero", req: 0, def: "15", si: ["obligacion", "hipoteca"] },
+        { id: "cancelacionNotaria", et: "Notaría donde se firma la cancelación", req: 0, ph: "Ej.: Primera de Itagüí", si: ["obligacion", "hipoteca"] }
+      ],
+      adicional: null
+    },
+    acta_entrega_inmueble: {
+      nombre: "Acta de entrega de inmueble arrendado", corto: "Acta de entrega del inmueble", precio: { auto: 20000, abogado: 60000 },
+      desc: "Constancia del día en que el arrendatario devuelve el inmueble y las llaves, y del estado en que lo entrega.",
+      consejos: ["Se firma en el inmueble, después de revisarlo frente al inventario inicial.", "Si hay daños, tome fotos y guárdelas con el acta."],
+      sinAnexos: 1, firmaEt: ["Municipio de la entrega", "Fecha de la entrega"],
+      roles: [{ id: "arrendador", et: "Quien recibe (arrendador)", min: 1, max: 3, p: { juridica: 1, contacto: 1 } },
+        { id: "arrendatario", et: "Quien entrega (arrendatario)", min: 1, max: 3, p: { contacto: 1 } }],
+      campos: [
+        { g: "La entrega" },
+        { id: "hora", et: "Hora de la entrega", tipo: "hora" },
+        { id: "inDireccion", et: "Dirección del inmueble, con barrio", ph: "Ej.: Calle 52 # 49-10, apartamento 301, barrio Centro" },
+        { id: "inMunicipio", et: "Municipio del inmueble" },
+        { id: "fechaContrato", et: "Fecha del contrato de arrendamiento", tipo: "fecha" },
+        { id: "llaves", et: "Juegos de llaves que se entregan", tipo: "numero", def: "2" },
+        { id: "estado", et: "Estado del inmueble", tipo: "radio", op: [["bueno", "En buen estado, salvo el deterioro por el uso normal"], ["novedades", "Con novedades o daños"]], def: "bueno" },
+        { id: "novedades", et: "Novedades o daños", tipo: "area", si: ["estado", "novedades"] },
+        { g: "Servicios y cánones" },
+        { id: "lecturaEnergia", et: "Lectura del medidor de energía" }, { id: "lecturaAcueducto", et: "Lectura del medidor de acueducto" },
+        { id: "lecturaGas", et: "Lectura del medidor de gas", req: 0 },
+        { id: "servicios", et: "Servicios públicos", tipo: "radio", op: [["facturas", "Entrega las facturas pagadas"], ["pagara", "Pagará los consumos hasta hoy cuando llegue la factura"]], def: "facturas" },
+        { id: "periodoPagado", et: "Facturas pagadas hasta el periodo", ph: "Ej.: octubre de 2026", si: ["servicios", "facturas"] },
+        { id: "canones", et: "Cánones", tipo: "radio", op: [["paz", "Está a paz y salvo"], ["debe", "Debe cánones"]], def: "paz" },
+        { id: "deuda", et: "Valor que debe", tipo: "dinero", si: ["canones", "debe"] },
+        { id: "deudaMeses", et: "Cánones que debe", ph: "Ej.: octubre y noviembre de 2026", si: ["canones", "debe"] },
+        { id: "deudaFecha", et: "Fecha en que los pagará", tipo: "fecha", si: ["canones", "debe"] },
+        { id: "pendientes", et: "¿Quedan otras obligaciones pendientes?", tipo: "radio", op: SI_NO, def: "no" },
+        { id: "pendientesTexto", et: "Pendientes", tipo: "area", si: ["pendientes", "si"] }
+      ],
+      adicional: null
+    },
+    comodato: {
+      nombre: "Contrato de comodato o préstamo de uso", corto: "Comodato (préstamo de uso)", precio: { auto: 30000, abogado: 80000 },
+      desc: "Para prestar gratis una casa, local, lote, vehículo o máquina, y que se lo devuelvan.",
+      consejos: ["Si se cobra algo por el uso, ya no es comodato sino arrendamiento.", "Si quien recibe la finca o la casa queda obligado a cuidarla, vigilarla o trabajar en ella, puede haber una relación laboral (mayordomo o cuidandero) aunque se firme este contrato. En ese caso consulte con el abogado."],
+      roles: [{ id: "comodante", et: "Quien presta el bien (comodante)", min: 1, max: 3, p: { civil: 1, contacto: 1 } },
+        { id: "comodatario", et: "Quien recibe el bien (comodatario)", min: 1, max: 3, p: { civil: 1, contacto: 1 } }],
+      campos: [
+        { g: "El bien que se presta" },
+        { id: "bien", et: "Se presta", tipo: "radio", op: [["inmueble", "Un inmueble"], ["vehiculo", "Un vehículo o una máquina"], ["otro", "Otro bien"]], def: "inmueble" },
+        { id: "inTipo", et: "Tipo de inmueble", tipo: "select", op: [["Casa", "Casa"], ["Apartamento", "Apartamento"], ["Local", "Local"], ["Lote", "Lote"], ["Finca", "Finca"], ["Bodega", "Bodega"], ["Oficina", "Oficina"]], si: ["bien", "inmueble"] },
+        { id: "inDireccion", et: "Dirección o vereda", si: ["bien", "inmueble"] },
+        { id: "inMunicipio", et: "Municipio", si: ["bien", "inmueble"] },
+        { id: "inMatricula", et: "Matrícula inmobiliaria", req: 0, si: ["bien", "inmueble"] },
+        { id: "rural", et: "¿Es un predio rural?", tipo: "radio", op: SI_NO, def: "no", si: ["bien", "inmueble"] },
+        { id: "vClase", et: "Clase", ph: "Ej.: automóvil, motocicleta, retroexcavadora", si: ["bien", "vehiculo"] },
+        { id: "vPlaca", et: "Placa o serie", si: ["bien", "vehiculo"] }, { id: "vMarca", et: "Marca", si: ["bien", "vehiculo"] },
+        { id: "vModelo", et: "Modelo", si: ["bien", "vehiculo"] }, { id: "vColor", et: "Color", si: ["bien", "vehiculo"] },
+        { id: "otroDesc", et: "Descripción, cantidad y estado del bien", tipo: "area", si: ["bien", "otro"] },
+        { id: "uso", et: "Para qué se usará", ph: "Ej.: vivienda de ella y de su familia" },
+        { g: "Duración" },
+        { id: "plazo", et: "¿Hasta cuándo?", tipo: "radio", op: [["si", "Hasta una fecha"], ["no", "Sin plazo: se devuelve cuando se pida por escrito"]], def: "si" },
+        { id: "hasta", et: "Fecha en que se devuelve", tipo: "fecha", si: ["plazo", "si"] },
+        { id: "diasRestitucion", et: "Días para devolverlo después del aviso", tipo: "numero", def: "30", si: ["plazo", "no"] },
+        { g: "Estado y gastos" },
+        { id: "inventario", et: "¿Firman inventario y fotografías del bien?", tipo: "radio", op: SI_NO, def: "si" },
+        { id: "gastosComodatarioI", et: "Gastos que paga quien recibe", def: "los servicios públicos y la administración", si: ["bien", "inmueble"] },
+        { id: "gastosComodanteI", et: "Gastos que paga quien presta", def: "el impuesto predial", si: ["bien", "inmueble"] },
+        { id: "gastosComodatarioV", et: "Gastos que paga quien recibe", def: "el combustible, el mantenimiento y los comparendos", si: ["bien", "vehiculo"] },
+        { id: "gastosComodanteV", et: "Gastos que paga quien presta", def: "el impuesto del vehículo, el SOAT y la revisión técnico-mecánica", si: ["bien", "vehiculo"] },
+        { id: "gastosComodatarioO", et: "Gastos que paga quien recibe", si: ["bien", "otro"] },
+        { id: "gastosComodanteO", et: "Gastos que paga quien presta", si: ["bien", "otro"] },
+        { id: "valorBien", et: "Valor del bien, para el caso de pérdida", tipo: "dinero", req: 0, si: [["bien", "vehiculo"], ["bien", "otro"]] }
+      ],
+      adicional: "Otros acuerdos entre las partes (opcional)"
     }
   };
 
@@ -560,11 +719,11 @@
       cAd.querySelector("textarea").addEventListener("input", function (e) { avisoMasc.hidden = !(actual === "arriendo_vivienda" && PROHIBE_MASCOTAS.test(e.target.value)); });
       rej3.appendChild(cAd);
     }
-    rej3.appendChild(campo({ id: "_anexosLista", et: "Anexos que hacen parte del documento", tipo: "lista", req: 0, ayuda: "Ej.: Inventario del inmueble. Uno por línea." }));
+    if (!d.sinAnexos) rej3.appendChild(campo({ id: "_anexosLista", et: "Anexos que hacen parte del documento", tipo: "lista", req: 0, ayuda: "Ej.: Inventario del inmueble. Uno por línea." }));
     var archivos = el("div", { class: "campo ancho" }, [el("label", { for: "doc-archivos", texto: "Adjuntar anexos (PDF o foto, máximo 5 archivos y 5 MB en total)" }), el("input", { type: "file", id: "doc-archivos", multiple: true, accept: "application/pdf,image/jpeg,image/png" }), el("p", { class: "ayuda", texto: "Se los enviamos junto con su documento." })]);
-    rej3.appendChild(archivos);
-    rej3.appendChild(campo({ id: "_municipioFirma", et: "Municipio donde se firma" }));
-    var f = campo({ id: "_fechaFirma", et: "Fecha de firma", tipo: "fecha" }); f.querySelector("input").value = hoy(); rej3.appendChild(f);
+    if (!d.sinAnexos) rej3.appendChild(archivos);
+    rej3.appendChild(campo({ id: "_municipioFirma", et: (d.firmaEt || [])[0] || "Municipio donde se firma" }));
+    var f = campo({ id: "_fechaFirma", et: (d.firmaEt || [])[1] || "Fecha de firma", tipo: "fecha" }); f.querySelector("input").value = hoy(); rej3.appendChild(f);
     sec3.appendChild(rej3);
     sec3.appendChild(el("h3", { class: "bloque-titulo", texto: "¿A dónde le enviamos el documento?" }));
     sec3.appendChild(el("div", { class: "rejilla" }, [campo({ id: "_nombre", et: "Su nombre" }), campo({ id: "_correo", et: "Correo electrónico", ph: "Aquí le llega el PDF" }), campo({ id: "_whatsapp", et: "WhatsApp", req: 0 })]));
@@ -696,9 +855,20 @@
   }
 
   // ---------- Catálogo ----------
+  var GRUPOS = [
+    ["Arrendamiento", ["arriendo_vivienda", "arriendo_local", "acta_entrega_inmueble", "cuenta_cobro_canones", "aviso_arrendatario"]],
+    ["Inmuebles", ["promesa", "poder_inmueble_venta"]],
+    ["Vehículos", ["vehiculo", "poder_vehiculo"]],
+    ["Contratos y deudas", ["comodato", "recibo_abono"]],
+    ["Poderes y trámites", ["poder_tramites"]]
+  ];
   function catalogo() {
-    var lista = $("#lista-docs");
-    Object.keys(DOCS).forEach(function (k) {
+    var lista = $("#lista-docs"), puestos = {};
+    var orden = [];
+    GRUPOS.forEach(function (g) { orden.push({ titulo: g[0] }); g[1].forEach(function (k) { if (DOCS[k]) { orden.push(k); puestos[k] = 1; } }); });
+    Object.keys(DOCS).forEach(function (k) { if (!puestos[k]) orden.push(k); });
+    orden.forEach(function (k) {
+      if (k.titulo) { lista.appendChild(el("li", { class: "grupo-docs", texto: k.titulo })); return; }
       var d = DOCS[k];
       lista.appendChild(el("li", { class: "tarjeta" }, [
         el("h3", { texto: d.corto }),
