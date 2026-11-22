@@ -274,7 +274,7 @@ button.boton { font: inherit; cursor: pointer; }
 .campo[hidden] { display: none; }
 .campo label, .campo .etiqueta { font-size: .95rem; color: var(--marfil); font-weight: 600; margin: 0; }
 .opcional { font-weight: 400; color: var(--niebla); font-size: .85rem; }
-.campo input[type=text], .campo input[type=number], .campo input[type=date], .campo input[type=time], .campo input:not([type]), .campo select, .campo textarea {
+.campo input[type=text], .campo input[type=tel], .campo input[type=email], .campo input[type=number], .campo input[type=date], .campo input[type=time], .campo input:not([type]), .campo select, .campo textarea {
   width: 100%; box-sizing: border-box; font: inherit; font-size: 1rem; color: var(--marfil); background: rgba(10, 22, 40, .7);
   border: 1px solid var(--filete); border-radius: 2px; padding: .7rem .8rem; min-height: 46px; }
 .campo input[type=date], .campo input[type=time] { color-scheme: dark; }
@@ -333,3 +333,8 @@ button.boton { font: inherit; cursor: pointer; }
 .resumen dt { color: var(--niebla); font-size: .9rem; }
 .resumen dd { margin: 0; color: var(--marfil); font-size: .95rem; overflow-wrap: anywhere; }
 @media (max-width: 560px) { .resumen dl { grid-template-columns: 1fr; } .resumen dd { margin-bottom: .4rem; } }
+
+/* Certificados en línea */
+#app-cert #pago p { margin: 0 0 .9rem; }
+#app-cert .ref-cert { color: var(--oro-claro); font-size: .95rem; margin: .2rem 0 1rem; overflow-wrap: anywhere; }
+#app-cert #pago h1 { margin: .4rem 0 1rem; }
