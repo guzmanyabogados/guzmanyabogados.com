@@ -92,7 +92,7 @@
     var nombre = el("input", { type: "text", autocomplete: "name" });
     var celular = el("input", { type: "tel", inputmode: "numeric", autocomplete: "tel", placeholder: "Ej. 3001234567" });
     var correo = el("input", { type: "email", autocomplete: "email" });
-    var acepta = el("input", { type: "checkbox" }), autoriza = el("input", { type: "checkbox" });
+    var acepta = el("input", { type: "checkbox" }), autoriza = el("input", { type: "checkbox" }), mensajes = el("input", { type: "checkbox" });
     var error = el("p", { class: "error", hidden: true, role: "alert" });
     var boton = el("button", { class: "boton boton-oro", type: "submit", texto: "Enviar solicitud" });
 
@@ -129,6 +129,7 @@
       el("div", { class: "rejilla" }, [campo("Nombre completo", nombre), campo("Celular con WhatsApp", celular), campo("Correo electrónico", correo, "Allí le llega el certificado en PDF.", false, true)]),
       el("label", { class: "acepto" }, [acepta, el("span", {}, [el("b", { texto: "Entiendo el aviso. " }), "Somos el puente para que usted haga este trámite: no garantizamos que el trámite sea viable ni que el documento le sirva para lo que busca. Los datos que nos da son de su responsabilidad."])]),
       el("label", { class: "acepto" }, [autoriza, el("span", {}, ["Autorizo el uso de mis datos para este trámite, según la ", el("a", { href: "/politica-de-datos.html", target: "_blank", texto: "política de tratamiento de datos" }), "."])]),
+      el("label", { class: "acepto" }, [mensajes, el("span", {}, ["Quiero recibir recordatorios y beneficios de Guzmán y Abogados por correo y WhatsApp. ", el("span", { class: "opcional", texto: "(opcional; puede retirarlo cuando quiera)" })])]),
       error,
       el("div", { class: "acciones" }, [boton, el("a", { class: "boton boton-linea", href: "/#tramites", texto: "Volver" })])
     ]);
@@ -162,7 +163,7 @@
         oficina: ofi && !(trad && noSe.checked) ? ofi.codigo + " – " + ofi.nombre : "",
         matricula: numero.value, municipio: mun ? mun.valor : "", catastral: catastral.value.trim(), direccion: direccion.value.trim(),
         nombre: nombre.value.trim().toUpperCase(), whatsapp: celular.value.replace(/\D/g, "").replace(/^57(?=3\d{9}$)/, ""), correo: correo.value.trim(),
-        acepta: acepta.checked, autorizaDatos: autoriza.checked
+        acepta: acepta.checked, autorizaDatos: autoriza.checked, autorizaMensajes: mensajes.checked
       }).then(function (r) {
         if (!r.ok) throw new Error(r.error || "No pudimos registrar la solicitud");
         guardar(r.codigo);

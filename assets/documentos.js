@@ -1016,7 +1016,7 @@
     var f = campo({ id: "_fechaFirma", et: (d.firmaEt || [])[1] || "Fecha de firma", tipo: "fecha" }); f.querySelector("input").value = hoy(); rej3.appendChild(f);
     sec3.appendChild(rej3);
     sec3.appendChild(el("h3", { class: "bloque-titulo", texto: "¿A dónde le enviamos el documento?" }));
-    sec3.appendChild(el("div", { class: "rejilla" }, [campo({ id: "_nombre", et: "Su nombre" }), campo({ id: "_correo", et: "Correo electrónico", ph: "Aquí le llega el PDF" }), campo({ id: "_whatsapp", et: "WhatsApp", req: 0 })]));
+    sec3.appendChild(el("div", { class: "rejilla" }, [campo({ id: "_nombre", et: "Su nombre" }), campo({ id: "_correo", et: "Correo electrónico", ph: "Aquí le llega el PDF" }), campo({ id: "_whatsapp", et: "WhatsApp", req: 0 }), campo({ id: "_beneficio", et: "Código de beneficio", req: 0, ph: "Si le enviamos uno, escríbalo aquí" })]));
     sec3.appendChild(el("h3", { class: "bloque-titulo", texto: "Elija cómo lo quiere" }));
     sec3.appendChild(el("div", { class: "niveles" }, [
       el("label", { class: "nivel" }, [el("input", { type: "radio", name: "nivel", value: "auto", checked: true }), el("b", { texto: "Automático · " + pesos(d.precio.auto) }), el("span", { texto: "Lo recibe en PDF apenas se apruebe el pago." })]),
@@ -1024,6 +1024,7 @@
     ]));
     sec3.appendChild(el("label", { class: "acepto" }, [el("input", { type: "checkbox", id: "acepta", required: true }), el("span", { html: "<b>Entiendo y acepto:</b> Guzmán y Abogados es el puente para hacer este trámite; no garantiza que el trámite sea viable ni que el documento me sirva para lo que busco. Los datos que doy y lo que agrego son de mi responsabilidad. Si lo firmo o autentico en línea, la firma da fe de quién firma, no del contenido." })]));
     sec3.appendChild(el("label", { class: "acepto" }, [el("input", { type: "checkbox", id: "autoriza", required: true }), el("span", { html: "Autorizo el uso de mis datos y los de las demás personas del documento, que me autorizaron a darlos, solo para elaborar y enviar este documento, según la <a href=\"/politica-de-datos.html\" target=\"_blank\" rel=\"noopener\">política de tratamiento de datos</a>." })]));
+    sec3.appendChild(el("label", { class: "acepto" }, [el("input", { type: "checkbox", id: "mensajes" }), el("span", { html: "Quiero recibir recordatorios y beneficios de Guzmán y Abogados por correo y WhatsApp. <span class=\"opcional\">(opcional; puede retirarlo cuando quiera)</span>" })]));
     form.appendChild(sec3);
     form.appendChild(el("p", { class: "error", id: "doc-error", role: "alert", hidden: true }));
     form.appendChild(el("div", { class: "acciones" }, [el("button", { type: "submit", class: "boton boton-oro", id: "doc-enviar", texto: "Continuar al pago" }), el("button", { type: "button", class: "boton boton-linea", texto: "Elegir otro documento", onclick: volver })]));
@@ -1081,6 +1082,8 @@
     datos.anexosLista = val("_anexosLista");
     datos.firma = { municipio: val("_municipioFirma"), fecha: val("_fechaFirma") };
     datos.contacto = { nombre: val("_nombre"), correo: val("_correo"), whatsapp: val("_whatsapp") };
+    datos.autorizaMensajes = !!($("#mensajes") && $("#mensajes").checked);
+    var codBen = String(val("_beneficio") || "").trim().toUpperCase(); if (codBen) datos.codigoBeneficio = codBen;
     if (!API) { err.textContent = "El servicio en línea se está activando. Mientras tanto, escríbanos por WhatsApp al 320 563 9603."; err.hidden = false; return; }
     boton.disabled = true; boton.textContent = "Preparando su documento…";
     leerArchivos().then(function (anexos) {
@@ -1088,7 +1091,7 @@
       return fetch(API, { method: "POST", body: JSON.stringify(datos) }).then(function (r) { return r.json(); });
     }).then(function (r) {
       if (!r.ok) throw new Error(r.error || "No se pudo preparar el documento.");
-      var enlace = ENLACES[r.precio];
+      var enlace = r.gratis ? "/pago-recibido.html?id=" + encodeURIComponent(r.transaccion) : (ENLACES[r.precio] || r.enlacePago);
       try { localStorage.setItem("ga_doc", JSON.stringify({ codigo: r.codigo, precio: r.precio, documento: d.nombre, enlace: enlace, t: Date.now() })); } catch (x) {}
       mostrarPago(r, d, enlace);
     }).catch(function (x) {
@@ -1120,7 +1123,7 @@
       });
     });
     [].forEach.call(form.querySelectorAll(".bloque [data-campo]"), function (c) {
-      if (c.hidden || c.closest(".persona") || /^_(nombre|correo|whatsapp)$/.test(c._def.id)) return;
+      if (c.hidden || c.closest(".persona") || /^_(nombre|correo|whatsapp|beneficio)$/.test(c._def.id)) return;
       var v = valorVisible(c); if (v) filas.push([c._def.et.replace(/ \(.*\)$/, ""), v]);
     });
     if (!filas.length) return null;
@@ -1133,12 +1136,13 @@
   function mostrarPago(r, d, enlace) {
     var p = $("#pago"); p.innerHTML = "";
     p.appendChild(el("p", { class: "ante", texto: "Paso 3 de 3 · Pago" }));
-    p.appendChild(el("h2", { texto: "Su documento está listo para pagar" }));
-    p.appendChild(el("p", { html: d.nombre + " · código <b>" + r.codigo + "</b> · valor <b>" + pesos(r.precio) + "</b>" }));
-    var res = resumenDatos(); if (res) p.appendChild(res);
-    p.appendChild(el("p", { class: "aviso-datos", html: "<b>Anote su código: " + r.codigo + ".</b> Después de pagar, Wompi lo devuelve a nuestra página y el PDF se descarga solo; también le llega al correo. Si la página no se abre sola, el código le sirve para recibir su documento." }));
+    p.appendChild(el("h2", { texto: r.gratis ? "Su documento está listo" : "Su documento está listo para pagar" }));
+    p.appendChild(el("p", { html: d.nombre + " · código <b>" + r.codigo + "</b> · valor <b>" + (r.gratis ? "sin costo" : pesos(r.precio)) + "</b>" }));
+    if (r.beneficio) p.appendChild(el("p", { class: "aviso-datos", html: "<b>Beneficio aplicado:</b> " + r.beneficio.charAt(0).toLowerCase() + r.beneficio.slice(1) + "." + (r.nivel === "abogado" ? " El abogado lo revisa y se lo enviamos a más tardar el siguiente día hábil." : "") }));
+    var res = resumenDatos(); if (res) { if (r.gratis) res.querySelector("summary").textContent = "Revise sus datos"; p.appendChild(res); }
+    p.appendChild(el("p", { class: "aviso-datos", html: r.gratis ? "<b>Anote su código: " + r.codigo + ".</b> Revise sus datos y oprima «Recibir mi documento»: el PDF se descarga y también le llega al correo." : "<b>Anote su código: " + r.codigo + ".</b> Después de pagar, Wompi lo devuelve a nuestra página y el PDF se descarga solo; también le llega al correo. Si la página no se abre sola, el código le sirve para recibir su documento." }));
     p.appendChild(el("div", { class: "acciones" }, [
-      enlace ? el("a", { class: "boton boton-oro", href: enlace, texto: "Pagar " + pesos(r.precio) }) : el("a", { class: "boton boton-oro", href: WA + encodeURIComponent("Hola, quiero pagar mi documento " + r.codigo + "."), texto: "Pagar por WhatsApp" }),
+      r.gratis ? el("a", { class: "boton boton-oro", href: enlace, texto: "Recibir mi documento" }) : enlace ? el("a", { class: "boton boton-oro", href: enlace, texto: "Pagar " + pesos(r.precio) }) : el("a", { class: "boton boton-oro", href: WA + encodeURIComponent("Hola, quiero pagar mi documento " + r.codigo + "."), texto: "Pagar por WhatsApp" }),
       el("button", { type: "button", class: "boton boton-linea", texto: "Corregir datos", onclick: function () { p.hidden = true; $("#formulario").hidden = false; } })
     ]));
     $("#formulario").hidden = true; p.hidden = false; p.scrollIntoView({ behavior: "smooth", block: "start" });
