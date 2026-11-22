@@ -9,6 +9,7 @@
 
   // ---------- Definición de los documentos ----------
   var SI_NO = [["no", "No"], ["si", "Sí"]];
+  var PROHIBE_MASCOTAS = /(^|[^a-záéíóúñ])(no|proh[ií]b[a-záéíóúñ]*|sin|ningun[ao]?)\s[^.]{0,30}mascotas?|mascotas?[^.]{0,25}(no (se )?permit[a-záéíóúñ]*|proh[ií]bid[a-záéíóúñ]*)/i;
   var CUENTA = [
     { id: "forma", et: "Forma de pago", tipo: "radio", op: [["transferencia", "Transferencia"], ["efectivo", "Efectivo contra recibo"]], def: "transferencia" },
     { id: "tipoCuenta", et: "Tipo de cuenta", tipo: "select", op: [["de ahorros", "Ahorros"], ["corriente", "Corriente"]], si: ["forma", "transferencia"] },
@@ -56,7 +57,11 @@
         { g: "Servicios y otros" },
         { id: "servicios", et: "Servicios públicos a cargo del arrendatario", tipo: "checks", op: ["Acueducto", "Alcantarillado", "Energía", "Gas", "Aseo", "Internet"], def: ["Acueducto", "Alcantarillado", "Energía", "Gas", "Aseo"] },
         { id: "administracion", et: "¿El arrendatario paga la cuota de administración?", tipo: "radio", op: SI_NO, def: "no" },
-        { id: "penal", et: "Cláusula penal (valor)", tipo: "dinero", ayuda: "Suma que paga quien incumpla. Es frecuente pactar el valor de uno a tres cánones." }
+        { id: "penalTipo", et: "Cláusula penal", tipo: "radio", op: [["canones", "En número de cánones"], ["valor", "Valor fijo"]], def: "canones", ayuda: "Suma que paga quien incumpla. Es frecuente pactar tres cánones." },
+        { id: "penalCanones", et: "Número de cánones", tipo: "numero", def: "3", si: ["penalTipo", "canones"] },
+        { id: "penal", et: "Valor de la pena", tipo: "dinero", si: ["penalTipo", "valor"] },
+        { g: "Otros acuerdos (opcional)", ayuda: "Marque los que quiera incluir. Al final puede escribir otros." },
+        { id: "acuerdos", et: "Acuerdos", tipo: "checks", req: 0, op: [["mascotas", "Puede tener mascotas, cumpliendo las normas de convivencia y respondiendo por los daños"], ["pintura", "Se entrega pintado y debe devolverse pintado"], ["recibos", "El arrendatario muestra los recibos pagados cuando se los pidan"], ["visitas", "El arrendador puede visitar el inmueble con aviso previo de dos días"], ["internet", "Internet, televisión y telefonía a nombre del arrendatario, a paz y salvo al entregar"]] }
       ]),
       adicional: "Otros acuerdos entre las partes (opcional)"
     },
@@ -89,8 +94,12 @@
         { id: "reajustePct", et: "Porcentaje de reajuste", tipo: "numero", si: ["reajuste", "porcentaje"] },
         { g: "Otros" },
         { id: "administracion", et: "¿El arrendatario paga la cuota de administración?", tipo: "radio", op: SI_NO, def: "no" },
-        { id: "penalCanones", et: "Cláusula penal: número de cánones", tipo: "numero", def: "3" },
-        { id: "reporte", et: "¿Autorizan consulta y reporte en centrales de riesgo?", tipo: "radio", op: SI_NO, def: "si" }
+        { id: "penalTipo", et: "Cláusula penal", tipo: "radio", op: [["canones", "En número de cánones"], ["valor", "Valor fijo"]], def: "canones", ayuda: "Suma que paga quien incumpla. Es frecuente pactar tres cánones." },
+        { id: "penalCanones", et: "Número de cánones", tipo: "numero", def: "3", si: ["penalTipo", "canones"] },
+        { id: "penal", et: "Valor de la pena", tipo: "dinero", si: ["penalTipo", "valor"] },
+        { id: "reporte", et: "¿Autorizan consulta y reporte en centrales de riesgo?", tipo: "radio", op: SI_NO, def: "si" },
+        { g: "Otros acuerdos (opcional)", ayuda: "Marque los que quiera incluir. Al final puede escribir otros." },
+        { id: "acuerdos", et: "Acuerdos", tipo: "checks", req: 0, op: [["pintura", "Se entrega pintado y debe devolverse pintado"], ["recibos", "El arrendatario muestra los recibos pagados cuando se los pidan"], ["visitas", "El arrendador puede visitar el inmueble con aviso previo de dos días"], ["internet", "Internet, televisión y telefonía a nombre del arrendatario, a paz y salvo al entregar"], ["poliza", "El arrendatario toma una póliza de responsabilidad civil por su actividad"]] }
       ]),
       adicional: "Otros acuerdos entre las partes (opcional)"
     },
@@ -139,7 +148,9 @@
         { id: "horaEscritura", et: "Hora de la escritura", tipo: "hora", def: "10:00" },
         { id: "notaria", et: "Notaría (número o nombre)", ph: "Ej.: Primera" },
         { id: "notariaCiudad", et: "Ciudad de la notaría" },
-        { id: "penal", et: "Cláusula penal (valor)", tipo: "dinero", ayuda: "Es frecuente pactar alrededor del 10 % del precio." }
+        { id: "penalTipo", et: "Cláusula penal", tipo: "radio", op: [["porcentaje", "Porcentaje del precio"], ["valor", "Valor fijo"]], def: "porcentaje", ayuda: "Suma que paga quien incumpla. Es frecuente pactar alrededor del 10 % del precio." },
+        { id: "penalPct", et: "Porcentaje del precio", tipo: "numero", def: "10", si: ["penalTipo", "porcentaje"] },
+        { id: "penal", et: "Valor de la pena", tipo: "dinero", si: ["penalTipo", "valor"] }
       ],
       adicional: "Otros acuerdos entre las partes (opcional)"
     },
@@ -174,36 +185,52 @@
         { id: "traspasoDias", et: "Número de días", tipo: "numero", def: "30", si: ["traspaso", "dias"] },
         { id: "traspasoFecha", et: "Fecha", tipo: "fecha", si: ["traspaso", "fecha"] },
         { id: "gastos", et: "Gastos del traspaso", tipo: "select", op: [["mitades", "Por mitades"], ["vendedor", "Los paga el vendedor"], ["comprador", "Los paga el comprador"]] },
-        { id: "penal", et: "Cláusula penal (valor)", tipo: "dinero", ayuda: "Es frecuente pactar alrededor del 10 % del precio." }
+        { id: "penalTipo", et: "Cláusula penal", tipo: "radio", op: [["porcentaje", "Porcentaje del precio"], ["valor", "Valor fijo"]], def: "porcentaje", ayuda: "Suma que paga quien incumpla. Es frecuente pactar alrededor del 10 % del precio." },
+        { id: "penalPct", et: "Porcentaje del precio", tipo: "numero", def: "10", si: ["penalTipo", "porcentaje"] },
+        { id: "penal", et: "Valor de la pena", tipo: "dinero", si: ["penalTipo", "valor"] }
       ]),
       adicional: "Otros acuerdos entre las partes (opcional)"
     },
     poder_tramites: {
-      nombre: "Poder especial para trámites ante entidades", corto: "Poder para trámites", precio: { auto: 20000, abogado: 60000 },
-      desc: "DIAN, servicios públicos, impuestos, patios, EPS, registro civil, reclamar documentos o dinero.",
-      consejos: ["No sirve para vender bienes, manejar cuentas ni actuar en procesos judiciales.", "Muchas entidades exigen que la firma esté autenticada. Se la autenticamos en línea por $49.000."],
+      nombre: "Poder especial para trámites y administración", corto: "Poder para trámites", precio: { auto: 20000, abogado: 60000 },
+      desc: "Administrar un inmueble, DIAN, servicios públicos, impuestos, patios, EPS, registro civil, reclamar documentos o dinero.",
+      consejos: ["Sirve para trámites ante entidades y para administrar un inmueble: arrendarlo, cobrar los cánones y pagar sus cuentas.",
+        "No sirve para vender, prometer en venta, hipotecar ni firmar escrituras, ni para procesos judiciales. Para eso escríbanos por WhatsApp al 320 563 9603 y el abogado se lo prepara.",
+        "Muchas entidades, notarías e inmobiliarias piden la firma autenticada. Se la autenticamos en línea por $49.000."],
       roles: [{ id: "poderdante", et: "Quien da el poder", min: 1, max: 3, p: {} },
         { id: "apoderado", et: "Quien recibe el poder", min: 1, max: 1, p: {} },
         { id: "testigo", et: "Testigo que firma a ruego", min: 0, max: 1, p: { simple: 1 }, si: ["ruego", "si"] }],
       campos: [
-        { g: "Entidad" },
-        { id: "entidad", et: "Entidad ante la que se hace el trámite", ph: "Ej.: EPM, DIAN, Nueva EPS" },
-        { id: "entidadMunicipio", et: "Municipio de la entidad" },
-        { g: "Trámite" },
-        { id: "opcion", et: "¿Para qué es el poder?", tipo: "select", op: [["dian", "DIAN: RUT y certificados"], ["servicios", "Servicios públicos"], ["impuestos", "Impuesto predial o de industria y comercio"], ["transito", "Retirar un vehículo de patios o parqueadero"], ["salud", "EPS: citas, medicamentos, beneficiarios"], ["registro", "Registro civil: copias y certificados"], ["documentos", "Reclamar un documento"], ["dinero", "Recibir un dinero"], ["otro", "Otro trámite"]] },
-        { id: "dianAccion", et: "Trámite del RUT", tipo: "select", op: [["Inscribir", "Inscribir"], ["Actualizar", "Actualizar"]], si: ["opcion", "dian"] },
+        { g: "A quién va dirigido" },
+        { id: "destino", et: "¿El poder va dirigido a una entidad en particular?", tipo: "radio", op: [["general", "No: A QUIEN PUEDA INTERESAR"], ["entidad", "Sí, a una entidad"]], def: "general" },
+        { id: "entidad", et: "Entidad", ph: "Ej.: EPM, DIAN, Nueva EPS", si: ["destino", "entidad"] },
+        { id: "entidadMunicipio", et: "Municipio de la entidad", si: ["destino", "entidad"] },
+        { g: "Para qué es el poder" },
+        { id: "opcion", et: "Trámite", tipo: "select", elegir: 1, op: [["inmueble", "Administrar un inmueble (arrendar, cobrar, pagar cuentas)"], ["dian", "DIAN: RUT y certificados"], ["servicios", "Servicios públicos"], ["impuestos", "Impuesto predial o de industria y comercio"], ["transito", "Retirar un vehículo de patios o parqueadero"], ["salud", "EPS: citas, medicamentos, beneficiarios"], ["registro", "Registro civil: copias y certificados"], ["documentos", "Reclamar un documento"], ["dinero", "Recibir un dinero"], ["otro", "Otro trámite"]] },
+        { id: "inTipo", et: "Tipo de inmueble", tipo: "select", op: [["casa", "Casa"], ["apartamento", "Apartamento"], ["local comercial", "Local comercial"], ["oficina", "Oficina"], ["bodega", "Bodega"], ["parqueadero", "Parqueadero"], ["lote", "Lote"], ["finca", "Finca"]], si: ["opcion", "inmueble"] },
+        { id: "inDireccion", et: "Dirección completa", ph: "Ej.: Calle 50 # 50-50, apartamento 301", si: ["opcion", "inmueble"] },
+        { id: "inMunicipio", et: "Municipio", si: ["opcion", "inmueble"] },
+        { id: "inPH", et: "Edificio o conjunto (si es propiedad horizontal)", req: 0, ph: "Ej.: Edificio Los Pinos P.H.", si: ["opcion", "inmueble"] },
+        { id: "inMatricula", et: "Matrícula inmobiliaria", ph: "Ej.: 001-123456", ayuda: "Aparece en el certificado de tradición y en la escritura.", si: ["opcion", "inmueble"] },
+        { id: "inOrip", et: "Oficina de registro", ph: "Ej.: Medellín Sur", ayuda: "La que figura en el certificado de tradición.", si: ["opcion", "inmueble"] },
+        { id: "inCatastral", et: "Cédula o ficha catastral", ayuda: "Aparece en la factura del impuesto predial.", si: ["opcion", "inmueble"] },
+        { id: "cuentas", et: "Rendición de cuentas", tipo: "select", op: [["mes", "Cada mes"], ["trimestre", "Cada trimestre"]], si: ["opcion", "inmueble"] },
+        { id: "dianAccion", et: "Trámite del RUT", tipo: "select", op: [["Inscribir", "Inscripción"], ["Actualizar", "Actualización"]], si: ["opcion", "dian"] },
+        { id: "spServicio", et: "Servicio", tipo: "select", op: [["energía", "Energía"], ["acueducto y alcantarillado", "Acueducto y alcantarillado"], ["gas", "Gas"], ["internet", "Internet"]], si: ["opcion", "servicios"] },
+        { id: "spSolicitud", et: "Qué se solicita", tipo: "select", op: [["la instalación", "Instalación"], ["el traslado", "Traslado"], ["la suspensión", "Suspensión"], ["la reconexión", "Reconexión"], ["el cambio de nombre del suscriptor", "Cambio de nombre del suscriptor"]], si: ["opcion", "servicios"] },
         { id: "spDireccion", et: "Dirección del inmueble", si: ["opcion", "servicios"] },
+        { id: "spMunicipio", et: "Municipio del inmueble", si: ["opcion", "servicios"] },
         { id: "spTipoNumero", et: "Número de", tipo: "select", op: [["contrato", "Contrato"], ["instalacion", "Instalación"]], si: ["opcion", "servicios"] },
         { id: "spNumero", et: "Número", si: ["opcion", "servicios"] },
-        { id: "spSolicitud", et: "Qué se solicita", tipo: "select", op: [["la instalación", "Instalación"], ["el traslado", "Traslado"], ["la suspensión", "Suspensión"], ["la reconexión", "Reconexión"], ["el cambio de nombre del suscriptor", "Cambio de nombre del suscriptor"]], si: ["opcion", "servicios"] },
-        { id: "spServicio", et: "Servicio", tipo: "select", op: [["energía", "Energía"], ["acueducto y alcantarillado", "Acueducto y alcantarillado"], ["gas", "Gas"], ["internet", "Internet"]], si: ["opcion", "servicios"] },
         { id: "impImpuesto", et: "Impuesto", tipo: "select", op: [["predial", "Predial"], ["ica", "Industria y comercio"]], si: ["opcion", "impuestos"] },
+        { id: "impMunicipio", et: "Municipio", si: ["opcion", "impuestos"] },
         { id: "impObjeto", et: "Matrícula del inmueble o nombre del establecimiento", si: ["opcion", "impuestos"] },
+        { id: "impCatastral", et: "Cédula catastral", req: 0, si: ["impImpuesto", "predial"] },
         { id: "impAccion", et: "Sobre el registro de industria y comercio", tipo: "select", op: [["inscribir", "Inscribir"], ["actualizar", "Actualizar"], ["cancelar", "Cancelar"]], si: ["impImpuesto", "ica"] },
         { id: "impVigencias", et: "Años (vigencias)", req: 0, ph: "Ej.: 2024 a 2026", si: ["opcion", "impuestos"] },
         { id: "trLugar", et: "Lugar", tipo: "select", op: [["patios", "Patios"], ["parqueadero", "Parqueadero"]], si: ["opcion", "transito"] },
         { id: "trPlaca", et: "Placa", si: ["opcion", "transito"] }, { id: "trMarca", et: "Marca", si: ["opcion", "transito"] }, { id: "trModelo", et: "Modelo", si: ["opcion", "transito"] },
-        { id: "saBeneficiario", et: "Beneficiario que se afilia o retira (opcional)", req: 0, ph: "Nombre e identificación", si: ["opcion", "salud"] },
+        { id: "saBeneficiario", et: "Beneficiario que se afilia o retira", req: 0, ph: "Nombre e identificación", si: ["opcion", "salud"] },
         { id: "saAccion", et: "¿Afiliar o retirar?", tipo: "select", op: [["afiliar", "Afiliar"], ["retirar", "Retirar"]], si: ["opcion", "salud"] },
         { id: "reTipo", et: "Registro civil de", tipo: "select", op: [["nacimiento", "Nacimiento"], ["matrimonio", "Matrimonio"], ["defunción", "Defunción"]], si: ["opcion", "registro"] },
         { id: "reNombre", et: "De quién", si: ["opcion", "registro"] },
@@ -211,12 +238,25 @@
         { id: "doDentro", et: "Expedido dentro de", ph: "Ej.: el proceso con radicado 2025-00123", si: ["opcion", "documentos"] },
         { id: "diPagador", et: "Quién paga", si: ["opcion", "dinero"] }, { id: "diValor", et: "Valor", tipo: "dinero", si: ["opcion", "dinero"] },
         { id: "diConcepto", et: "Por concepto de", si: ["opcion", "dinero"] },
-        { id: "otroTexto", et: "Describa el trámite, la entidad y lo que puede firmar o reclamar", tipo: "area", si: ["opcion", "otro"] },
-        { id: "vigenciaFecha", et: "Vigente hasta (en blanco: hasta terminar el trámite)", tipo: "fecha", req: 0 },
+        { id: "otroTexto", et: "Describa el trámite y ante quién", tipo: "area", si: ["opcion", "otro"] },
+        { g: "Facultades", ayuda: "Marque lo que la persona podrá hacer en su nombre. Al final puede escribir otras." },
+        { id: "facultades", et: "Podrá", tipo: "checks", req: 0, si: ["opcion", "inmueble"], op: [["arrendar", "Arrendar el inmueble: firmar, prorrogar y terminar contratos y reajustar el canon"], ["cobrar", "Cobrar y recibir los cánones y expedir recibos y paz y salvos"], ["entregar", "Entregar y recibir el inmueble y firmar actas e inventarios"], ["pagar", "Pagar servicios, predial, valorización y administración"], ["ph", "Representarlo ante la administración y en las asambleas de la propiedad horizontal"], ["reparaciones", "Contratar y pagar reparaciones y mantenimiento"], ["servicios", "Hacer trámites ante las empresas de servicios públicos"], ["certificados", "Pedir certificados de tradición, estados de cuenta y paz y salvos"], ["acuerdos", "Firmar acuerdos de pago de impuestos, servicios y administración"], ["abogado", "Darle poder a un abogado para la restitución del inmueble y el cobro de cánones"]], def: ["arrendar", "cobrar", "entregar", "pagar"] },
+        { id: "facultades", et: "Podrá", tipo: "checks", req: 0, si: ["opcion", "dian"], op: [["formularios", "Presentar y firmar formularios y documentos"], ["copia", "Pedir y recibir copia del RUT"], ["certificados", "Pedir estados de cuenta y certificaciones"]], def: ["formularios", "copia", "certificados"] },
+        { id: "facultades", et: "Podrá", tipo: "checks", req: 0, si: ["opcion", "servicios"], op: [["firmar", "Presentar y firmar solicitudes y formularios"], ["facturas", "Pedir duplicados de facturas y estados de cuenta"], ["acuerdos", "Firmar acuerdos de pago"], ["pqr", "Presentar peticiones, quejas y reclamos"], ["recursos", "Interponer recursos contra las decisiones de la empresa"], ["pagar", "Pagar las facturas con el dinero que usted le entregue"]], def: ["firmar", "facturas", "pqr"] },
+        { id: "facultades", et: "Podrá", tipo: "checks", req: 0, si: ["opcion", "impuestos"], op: [["estados", "Pedir facturas, estados de cuenta y paz y salvos"], ["acuerdos", "Firmar acuerdos de pago"], ["solicitudes", "Presentar peticiones y solicitudes de prescripción o corrección"], ["pagar", "Pagar el impuesto con el dinero que usted le entregue"]], def: ["estados"] },
+        { id: "facultades", et: "Podrá", tipo: "checks", req: 0, si: ["opcion", "transito"], op: [["pagar", "Pagar parqueadero, grúa y demás valores"], ["acta", "Firmar el acta de entrega y recibir el vehículo y sus documentos"]], def: ["pagar", "acta"] },
+        { id: "facultades", et: "Podrá", tipo: "checks", req: 0, si: ["opcion", "salud"], op: [["citas", "Pedir, cambiar y cancelar citas"], ["autorizaciones", "Pedir y reclamar autorizaciones y órdenes"], ["medicamentos", "Reclamar medicamentos e insumos"], ["resultados", "Reclamar resultados de exámenes"], ["historia", "Pedir copia de la historia clínica"], ["pqr", "Presentar peticiones, quejas y reclamos"], ["incapacidades", "Radicar incapacidades y reclamar su pago"]], def: ["citas", "autorizaciones", "medicamentos", "resultados"] },
+        { id: "facultades", et: "Podrá", tipo: "checks", req: 0, si: ["opcion", "registro"], op: [["reclamar", "Reclamar los documentos y firmar el recibido"], ["pagar", "Pagar los derechos"]], def: ["reclamar", "pagar"] },
+        { id: "facultades", et: "Podrá", tipo: "checks", req: 0, si: ["opcion", "documentos"], op: [["recibido", "Firmar el recibido"], ["copias", "Pedir copias del expediente o del trámite"]], def: ["recibido"] },
+        { id: "facultades", et: "Podrá", tipo: "checks", req: 0, si: ["opcion", "dinero"], op: [["recibo", "Expedir el recibo o paz y salvo"]], def: ["recibo"] },
+        { g: "Condiciones" },
+        { id: "vigenciaFecha", et: "Vigente hasta", tipo: "fecha", req: 0, ayuda: "En blanco: hasta terminar el trámite (para administrar un inmueble, por término indefinido). Siempre se puede revocar." },
+        { id: "sustituir", et: "¿Puede pasarle el poder a otra persona (sustituirlo)?", tipo: "radio", op: SI_NO, def: "no" },
         { id: "ruego", et: "¿Quien da el poder no sabe o no puede firmar?", tipo: "radio", op: SI_NO, def: "no", ayuda: "En ese caso firma un testigo a ruego y se hace ante notario." },
         { id: "ruegoMotivo", et: "Motivo", tipo: "select", op: [["no_sabe", "No sabe firmar"], ["no_puede", "No puede firmar"]], si: ["ruego", "si"] }
       ],
-      adicional: "Facultades adicionales (opcional, bajo su responsabilidad)"
+      adicional: "Otras facultades que quiera dar (una por línea, bajo su responsabilidad)",
+      adicionalAyuda: "No escriba aquí facultades para vender, hipotecar o firmar escrituras: este poder no sirve para eso."
     },
     poder_vehiculo: {
       nombre: "Poder especial para vehículos", corto: "Poder para vehículos", precio: { auto: 20000, abogado: 60000 },
@@ -284,8 +324,22 @@
   function uid(p) { return (p || "c") + (++contador); }
 
   // ---------- Campos ----------
+  // ---------- Municipios (lista del DANE) ----------
+  var MUN = window.GA_MUNICIPIOS || [], REPETIDOS = {};
+  function clave(s) { return String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9ñ ]/g, " ").replace(/\s+/g, " ").trim(); }
+  (function () { var c = {}; MUN.forEach(function (m) { c[m[0]] = (c[m[0]] || 0) + 1; }); Object.keys(c).forEach(function (k) { if (c[k] > 1) REPETIDOS[k] = 1; }); MUN.forEach(function (m) { m[2] = clave(m[0]); }); })();
+  function etiquetaMun(m) { return m[0] === m[1] ? m[0] : m[0] + " (" + m[1] + ")"; }
+  function valorMun(m) { return REPETIDOS[m[0]] ? m[0] + " (" + m[1] + ")" : m[0]; }
+  function buscarMun(q) {
+    q = clave(q); if (!q) return [];
+    var a = [], b = [];
+    MUN.forEach(function (m) { var i = m[2].indexOf(q); if (i === 0) a.push(m); else if (i > 0) b.push(m); });
+    var orden = function (x, y) { return (x[1] === "Antioquia" ? 0 : 1) - (y[1] === "Antioquia" ? 0 : 1) || x[0].localeCompare(y[0], "es"); };
+    return a.sort(orden).concat(b.sort(orden)).slice(0, 8);
+  }
+  function esMunicipio(def) { return !def.tipo && /municipio|ciudad$|^domicilio$|^expedida$/i.test(def.id); }
   function campo(def, ambito) {
-    var id = uid("f"), tipo = def.tipo || "texto", req = def.req !== 0;
+    var id = uid("f"), tipo = def.tipo || (esMunicipio(def) ? "municipio" : "texto"), req = def.req !== 0;
     var envoltura = el("div", { class: "campo" + (tipo === "area" || tipo === "lista" || tipo === "checks" || tipo === "radio" ? " ancho" : ""), "data-campo": def.id });
     var etiqueta = el("label", { for: id, texto: def.et + (req ? "" : "") });
     if (!req) etiqueta.appendChild(el("span", { class: "opcional", texto: " (opcional)" }));
@@ -303,8 +357,36 @@
       etiqueta = el("p", { class: "etiqueta", texto: def.et });
       control = el("div", { class: "opciones" }, def.op.map(function (o, i) {
         var cid = id + "_" + i;
-        return el("label", { class: "opcion", for: cid }, [el("input", { type: "checkbox", id: cid, value: o, checked: (def.def || []).indexOf(o) >= 0 }), el("span", { texto: o })]);
+        var v = Array.isArray(o) ? o[0] : o, t = Array.isArray(o) ? o[1] : o;
+        return el("label", { class: "opcion", for: cid }, [el("input", { type: "checkbox", id: cid, value: v, checked: (def.def || []).indexOf(v) >= 0 }), el("span", { texto: t })]);
       }));
+    } else if (tipo === "municipio") {
+      var entrada = el("input", { id: id, name: def.id, type: "text", required: req, placeholder: "Escriba y elija de la lista", autocomplete: "off", "aria-autocomplete": "list" });
+      var lista = el("ul", { class: "sugerencias", role: "listbox", hidden: true });
+      var elegido = "";
+      var mostrar = function () {
+        var r = buscarMun(entrada.value); lista.innerHTML = "";
+        r.forEach(function (m) {
+          var li = el("li", { role: "option", texto: etiquetaMun(m) });
+          li.addEventListener("mousedown", function (ev) { ev.preventDefault(); elegir(m); });
+          lista.appendChild(li);
+        });
+        lista.hidden = !r.length;
+      };
+      var elegir = function (m) { elegido = valorMun(m); entrada.value = etiquetaMun(m); lista.hidden = true; envoltura.classList.remove("falta"); entrada.dispatchEvent(new Event("change", { bubbles: true })); };
+      entrada.addEventListener("input", function () { elegido = ""; mostrar(); });
+      entrada.addEventListener("focus", mostrar);
+      entrada.addEventListener("keydown", function (ev) { if (ev.key === "Enter" && !lista.hidden && lista.firstChild) { ev.preventDefault(); lista.firstChild.dispatchEvent(new Event("mousedown")); } });
+      entrada.addEventListener("blur", function () {
+        setTimeout(function () {
+          lista.hidden = true;
+          if (!elegido && entrada.value.trim()) { var exactos = MUN.filter(function (m) { return m[2] === clave(entrada.value); }); if (exactos.length === 1) elegir(exactos[0]); }
+        }, 150);
+      });
+      control = el("div", { class: "con-sugerencias" }, [entrada, lista]);
+      envoltura._invalido = function () { return !!entrada.value.trim() && !elegido; };
+      envoltura._leerMun = function () { return elegido; };
+      if (!def.ayuda) def = Object.assign({}, def, { ayuda: "Escriba las primeras letras y elija el municipio de la lista." });
     } else if (tipo === "area" || tipo === "lista") {
       control = el("textarea", { id: id, name: def.id, rows: tipo === "lista" ? 4 : 3, required: req, placeholder: tipo === "lista" ? "Escriba uno por línea" : (def.ph || "") });
     } else {
@@ -318,7 +400,10 @@
     envoltura.appendChild(etiqueta);
     envoltura.appendChild(control);
     if (def.ayuda) envoltura.appendChild(el("p", { class: "ayuda", texto: def.ayuda }));
+    if (def.mayus && control.tagName === "INPUT") control.classList.add("mayus");
     envoltura._leer = function () {
+      if (tipo === "municipio") return envoltura._leerMun();
+      if (def.mayus) return control.value.trim().toUpperCase();
       if (tipo === "radio") { var r = envoltura.querySelector("input:checked"); return r ? r.value : ""; }
       if (tipo === "checks") return [].slice.call(envoltura.querySelectorAll("input:checked")).map(function (x) { return x.value; });
       if (tipo === "lista") return control.value.split(/\n+/).map(function (x) { return x.trim(); }).filter(Boolean);
@@ -351,7 +436,7 @@
     p.appendChild(el("legend", { texto: "Persona " + (n || 1) }));
     var campos = [];
     if (opc.juridica) campos.push({ id: "juridica", et: "Es", tipo: "radio", op: [["no", "Persona natural"], ["si", "Empresa"]], def: "no" });
-    campos.push({ id: "nombre", et: "Nombre completo o razón social", ph: "Como aparece en el documento" });
+    campos.push({ id: "nombre", et: "Nombre completo o razón social", ph: "Como aparece en el documento", mayus: 1 });
     if (!opc.simple) {
       campos.push({ id: "tipoDoc", et: "Documento", tipo: "select", op: [["CC", "Cédula de ciudadanía"], ["CE", "Cédula de extranjería"], ["PPT", "Permiso por protección temporal"], ["PA", "Pasaporte"]], si: opc.juridica ? ["juridica", "no"] : null });
       campos.push({ id: "numero", et: "Número de documento o NIT" });
@@ -359,7 +444,7 @@
       campos.push({ id: "domicilio", et: "Municipio donde vive (domicilio)" });
       if (opc.civil) campos.push({ id: "estadoCivil", et: "Estado civil", tipo: "select", elegir: 1, op: [["soltero", "Soltero"], ["soltera", "Soltera"], ["casado con sociedad conyugal vigente", "Casado con sociedad conyugal vigente"], ["casada con sociedad conyugal vigente", "Casada con sociedad conyugal vigente"], ["casado con sociedad conyugal disuelta y liquidada", "Casado con sociedad conyugal disuelta y liquidada"], ["casada con sociedad conyugal disuelta y liquidada", "Casada con sociedad conyugal disuelta y liquidada"], ["soltero con unión marital de hecho", "Soltero con unión marital de hecho"], ["soltera con unión marital de hecho", "Soltera con unión marital de hecho"], ["divorciado", "Divorciado"], ["divorciada", "Divorciada"], ["viudo", "Viudo"], ["viuda", "Viuda"]] });
       if (opc.juridica) {
-        campos.push({ id: "representante", et: "Representante legal", si: ["juridica", "si"] });
+        campos.push({ id: "representante", et: "Representante legal", si: ["juridica", "si"], mayus: 1 });
         campos.push({ id: "repNumero", et: "Cédula del representante", si: ["juridica", "si"] });
         campos.push({ id: "camara", et: "Cámara de Comercio", ph: "Ej.: Aburrá Sur", si: ["juridica", "si"] });
       }
@@ -405,6 +490,7 @@
     cont.appendChild(el("p", { class: "ante", texto: "Paso 2 de 3 · Datos del documento" }));
     cont.appendChild(el("h2", { texto: d.nombre }));
     if (d.consejos) cont.appendChild(el("ul", { class: "consejos" }, d.consejos.map(function (c) { return el("li", { texto: c }); })));
+    cont.appendChild(el("p", { class: "aviso-datos", html: "<b>Importante:</b> lo que escriba sale tal cual en el documento. Escriba nombres, números y direcciones completos y sin errores. Los nombres de las personas salen en MAYÚSCULA y los municipios se eligen de la lista." }));
     var form = el("form", { id: "doc-form", novalidate: true });
     var sec1 = el("section", { class: "bloque" }, [el("h3", { class: "bloque-titulo", texto: "Las partes" })]);
     d.roles.forEach(function (r) { sec1.appendChild(grupoRol(r)); });
@@ -422,7 +508,13 @@
     form.appendChild(sec2);
     var sec3 = el("section", { class: "bloque" }, [el("h3", { class: "bloque-titulo", texto: "Para terminar" })]);
     var rej3 = el("div", { class: "rejilla" });
-    if (d.adicional) rej3.appendChild(campo({ id: "_adicional", et: d.adicional, tipo: "area", req: 0, ayuda: "Lo que escriba aquí va tal cual en el documento y es de su responsabilidad." }));
+    if (d.adicional) {
+      var cAd = campo({ id: "_adicional", et: d.adicional, tipo: "area", req: 0, ayuda: "Escriba un acuerdo por línea. Sale tal cual lo escriba: revise ortografía, mayúsculas y números. Es de su responsabilidad." + (d.adicionalAyuda ? " " + d.adicionalAyuda : "") });
+      var avisoMasc = el("p", { class: "error", hidden: true, texto: "En vivienda no se debe prohibir tener mascotas. Si quiere, marque arriba la opción de mascotas con normas de convivencia." });
+      cAd.appendChild(avisoMasc);
+      cAd.querySelector("textarea").addEventListener("input", function (e) { avisoMasc.hidden = !(actual === "arriendo_vivienda" && PROHIBE_MASCOTAS.test(e.target.value)); });
+      rej3.appendChild(cAd);
+    }
     rej3.appendChild(campo({ id: "_anexosLista", et: "Anexos que hacen parte del documento", tipo: "lista", req: 0, ayuda: "Ej.: Inventario del inmueble. Uno por línea." }));
     var archivos = el("div", { class: "campo ancho" }, [el("label", { for: "doc-archivos", texto: "Adjuntar anexos (PDF o foto, máximo 5 archivos y 5 MB en total)" }), el("input", { type: "file", id: "doc-archivos", multiple: true, accept: "application/pdf,image/jpeg,image/png" }), el("p", { class: "ayuda", texto: "Se los enviamos junto con su documento." })]);
     rej3.appendChild(archivos);
@@ -468,9 +560,9 @@
     [].forEach.call(form.querySelectorAll("[data-campo]"), function (c) {
       if (c.hidden || c.closest("[hidden]")) return;
       var v = c._leer(), req = c._def.req !== 0;
-      var vacio = Array.isArray(v) ? !v.length : !v;
-      c.classList.toggle("falta", req && vacio);
-      if (req && vacio) faltan.push(c);
+      var vacio = Array.isArray(v) ? !v.length : !v, malo = c._invalido && c._invalido();
+      c.classList.toggle("falta", (req && vacio) || malo);
+      if ((req && vacio) || malo) faltan.push(c);
     });
     var correo = form.querySelector('[data-campo="_correo"]');
     if (correo && correo._leer() && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(correo._leer())) { correo.classList.add("falta"); faltan.push(correo); }
@@ -509,11 +601,47 @@
       err.textContent = String(x.message || x).replace(/^Falta: /, "Falta: "); err.hidden = false;
     }).finally(function () { boton.disabled = false; boton.textContent = "Continuar al pago"; });
   }
+  // Resumen de lo que el usuario escribió, para que lo revise antes de pagar
+  function valorVisible(c) {
+    var v = c._leer(); if (!v || (Array.isArray(v) && !v.length)) return "";
+    var sc = c.querySelector("select"), mun = c.querySelector(".con-sugerencias input");
+    if (sc) return sc.options[sc.selectedIndex].text;
+    if (mun) return mun.value;
+    if (c._def.tipo === "radio") { var r = c.querySelector("input:checked"); return r ? r.parentNode.textContent : String(v); }
+    if (c._def.tipo === "checks") return [].map.call(c.querySelectorAll("input:checked"), function (x) { return x.parentNode.textContent; }).join("; ");
+    if (c._def.tipo === "dinero") return pesos(v);
+    if (c._def.tipo === "fecha" && /^\d{4}-\d{2}-\d{2}$/.test(v)) { var f = v.split("-"); return +f[2] + " de " + ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"][+f[1] - 1] + " de " + f[0]; }
+    return Array.isArray(v) ? v.join("; ") : String(v);
+  }
+  function resumenDatos() {
+    var form = $("#doc-form"), filas = [];
+    if (!form) return null;
+    [].forEach.call(form.querySelectorAll("[data-rol]"), function (g) {
+      if (g.hidden) return;
+      var et = (g.querySelector(".rol-cabeza h3") || {}).textContent || "";
+      [].forEach.call(g.querySelectorAll(".persona"), function (pe, i, todas) {
+        var partes = [];
+        [].forEach.call(pe.querySelectorAll("[data-campo]"), function (c) { if (c.hidden) return; var v = valorVisible(c); if (v) partes.push(c._def.et.replace(/ \(.*\)$/, "") + ": " + v); });
+        filas.push([et + (todas.length > 1 ? " " + (i + 1) : ""), partes.join(" · ")]);
+      });
+    });
+    [].forEach.call(form.querySelectorAll(".bloque [data-campo]"), function (c) {
+      if (c.hidden || c.closest(".persona") || /^_(nombre|correo|whatsapp)$/.test(c._def.id)) return;
+      var v = valorVisible(c); if (v) filas.push([c._def.et.replace(/ \(.*\)$/, ""), v]);
+    });
+    if (!filas.length) return null;
+    return el("details", { class: "resumen", open: true }, [
+      el("summary", { texto: "Revise sus datos antes de pagar" }),
+      el("p", { class: "ayuda", texto: "Así quedarán en el documento. Si algo está mal, oprima «Corregir datos»." }),
+      el("dl", {}, [].concat.apply([], filas.map(function (f) { return [el("dt", { texto: f[0] }), el("dd", { texto: f[1] })]; })))
+    ]);
+  }
   function mostrarPago(r, d, enlace) {
     var p = $("#pago"); p.innerHTML = "";
     p.appendChild(el("p", { class: "ante", texto: "Paso 3 de 3 · Pago" }));
     p.appendChild(el("h2", { texto: "Su documento está listo para pagar" }));
     p.appendChild(el("p", { html: d.nombre + " · código <b>" + r.codigo + "</b> · valor <b>" + pesos(r.precio) + "</b>" }));
+    var res = resumenDatos(); if (res) p.appendChild(res);
     p.appendChild(el("p", { texto: "Pague en Wompi y vuelva automáticamente a esta página para descargar su PDF. También le llega al correo. Guarde el código por si lo necesita." }));
     p.appendChild(el("div", { class: "acciones" }, [
       enlace ? el("a", { class: "boton boton-oro", href: enlace, texto: "Pagar " + pesos(r.precio) }) : el("a", { class: "boton boton-oro", href: WA + encodeURIComponent("Hola, quiero pagar mi documento " + r.codigo + "."), texto: "Pagar por WhatsApp" }),
