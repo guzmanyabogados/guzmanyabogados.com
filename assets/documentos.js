@@ -708,7 +708,7 @@
     p.appendChild(el("h2", { texto: "Su documento está listo para pagar" }));
     p.appendChild(el("p", { html: d.nombre + " · código <b>" + r.codigo + "</b> · valor <b>" + pesos(r.precio) + "</b>" }));
     var res = resumenDatos(); if (res) p.appendChild(res);
-    p.appendChild(el("p", { texto: "Pague en Wompi y vuelva automáticamente a esta página para descargar su PDF. También le llega al correo. Guarde el código por si lo necesita." }));
+    p.appendChild(el("p", { class: "aviso-datos", html: "<b>Anote su código: " + r.codigo + ".</b> Después de pagar, Wompi lo devuelve a nuestra página y el PDF se descarga solo; también le llega al correo. Si la página no se abre sola, el código le sirve para recibir su documento." }));
     p.appendChild(el("div", { class: "acciones" }, [
       enlace ? el("a", { class: "boton boton-oro", href: enlace, texto: "Pagar " + pesos(r.precio) }) : el("a", { class: "boton boton-oro", href: WA + encodeURIComponent("Hola, quiero pagar mi documento " + r.codigo + "."), texto: "Pagar por WhatsApp" }),
       el("button", { type: "button", class: "boton boton-linea", texto: "Corregir datos", onclick: function () { p.hidden = true; $("#formulario").hidden = false; } })

@@ -9,7 +9,7 @@
 <link rel="manifest" href="/manifest.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Guzmán Abogados">
-<link rel="stylesheet" href="/assets/estilo.css?v=20261122f">
+<link rel="stylesheet" href="/assets/estilo.css?v=20261122g">
 <title>Confirmar por WhatsApp · Guzmán y Abogados</title>
 <meta name="robots" content="noindex">
 </head>
@@ -61,7 +61,7 @@
     </div>
   </div>
 </footer>
-<script src="/assets/config.js?v=20261122f"></script>
+<script src="/assets/config.js?v=20261122g"></script>
 <script>
 (function () {
   var id = new URLSearchParams(location.search).get("id");
@@ -110,10 +110,12 @@
   }
   if (!id || !/^[0-9A-Za-z-]+$/.test(id)) return;
   if (doc && cfg.api) { emitir(doc.codigo); return; }
-  manual.hidden = !cfg.api;
-  document.getElementById("doc-manual-form").addEventListener("submit", function (e) {
+  manual.hidden = true;
+  manual.addEventListener("submit", function (e) {
     e.preventDefault(); var c = document.getElementById("doc-codigo").value.trim().toUpperCase(); if (c) emitir(c);
   });
+  var linksDocs = Object.keys(cfg.enlaces || {}).map(function (k) { return String(cfg.enlaces[k]).split("/").pop(); });
+  var porLink = { ZLHaPk: "consulta", tnTjo2: "tradicion", D2PQdn: "ficha", B6tFxu: "avaluo", WKMW3L: "firma", rJvdYm: "firma" };
   var mensaje = function (que) {
     boton.href = "https://wa.me/573205639603?text=" + encodeURIComponent("Hola, " + que + " Referencia de pago: " + id + ".");
   };
@@ -124,7 +126,8 @@
       var d = j && j.data; if (!d) return;
       var s = d.status, monto = d.amount_in_cents;
       var servicios = {6000000: "consulta", 2900000: "tradicion", 3200000: "tradicion", 6900000: "ficha", 9000000: "avaluo", 4900000: "firma", 1900000: "firma"};
-      var servicio = servicios[monto] || (monto % 4900000 === 0 || monto % 1900000 === 0 ? "firma" : "");
+      var link = d.payment_link_id || "";
+      var servicio = porLink[link] || (linksDocs.indexOf(link) >= 0 ? "documento" : "") || servicios[monto] || (monto % 4900000 === 0 || monto % 1900000 === 0 ? "firma" : "");
       if (s === "APPROVED") {
         estado.textContent = "Pago aprobado";
         titulo.textContent = "Gracias, recibimos su pago";
@@ -133,13 +136,19 @@
           mensaje("acabo de pagar la consulta con el abogado. Quiero confirmar mi cita.");
         } else if (servicio === "tradicion" || servicio === "ficha" || servicio === "avaluo") {
           var nombre = servicio === "tradicion" ? "el certificado de tradición y libertad" : (servicio === "ficha" ? "la ficha predial" : "el certificado de avalúo catastral");
-          texto.textContent = "Ya tenemos los datos que escribió en el pago. Le enviamos " + nombre + " en PDF al correo o al WhatsApp que indicó, lo más pronto posible dentro del horario de atención. Si tiene alguna duda, escríbanos por WhatsApp.";
+          texto.textContent = "No tiene que hacer nada más ni guardar ningún código: ya tenemos los datos que escribió en el pago. Le enviamos " + nombre + " en PDF al correo o al WhatsApp que indicó, lo más pronto posible dentro del horario de atención. Si tiene alguna duda, escríbanos por WhatsApp.";
           mensaje("acabo de pagar " + nombre + " en línea.");
           boton.textContent = "Escribir por WhatsApp";
         } else if (servicio === "firma") {
           texto.textContent = "Si todavía no nos ha enviado el documento, toque el botón y envíelo en PDF por WhatsApp, o envíelo al correo notificaciones@guzmanyabogados.com. Le avisamos cuando esté listo.";
           mensaje("acabo de pagar la firma de un documento. Les envío el PDF.");
           boton.textContent = "Enviar el documento por WhatsApp";
+        } else if (servicio === "documento" && cfg.api) {
+          titulo.textContent = "Recibimos el pago de su documento";
+          texto.textContent = "Escriba abajo el código de su documento para descargarlo. Es el que empieza por GA- y aparece en la pantalla donde pagó. Si no lo tiene, escríbanos por WhatsApp y se lo enviamos.";
+          manual.hidden = false;
+          mensaje("pagué un documento en línea y no tengo el código.");
+          boton.textContent = "Escribir por WhatsApp";
         } else {
           texto.textContent = "Toque el botón para escribirnos por WhatsApp y continuamos con su trámite.";
         }
@@ -156,7 +165,7 @@
         boton.textContent = "Escribir por WhatsApp";
       }
     })
-    .catch(function () {});
+    .catch(function () { manual.hidden = !cfg.api; });
 })();
 </script>
 </body>
