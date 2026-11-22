@@ -608,7 +608,7 @@
         { id: "chequeNum", et: "Número del cheque", si: ["medioEntrega", "cheque"] }, { id: "chequeBanco", et: "Banco del cheque", si: ["medioEntrega", "cheque"] },
         { g: "Devolución" },
         { id: "formaPago", et: "Se devuelve", tipo: "radio", op: [["unico", "En un solo pago"], ["cuotas", "En cuotas mensuales"]], def: "unico" },
-        { id: "fechaUnica", et: "Fecha del pago", tipo: "fecha", si: ["formaPago", "unico"] },
+        { id: "fechaUnica", et: "Fecha del pago", tipo: "fecha", si: [["formaPago", "unico"], ["espacios", "valor"]] },
         { id: "cuotas", et: "Número de cuotas", tipo: "numero", si: ["formaPago", "cuotas"] },
         { id: "cuotaValor", et: "Valor de cada cuota", tipo: "dinero", si: ["formaPago", "cuotas"] },
         { id: "primeraCuota", et: "Fecha de la primera cuota", tipo: "fecha", si: ["formaPago", "cuotas"] },
@@ -654,26 +654,27 @@
     pagare: {
       nombre: "Pagaré", corto: "Pagaré", precio: { auto: 20000, abogado: 60000 },
       desc: "Respalda una deuda en dinero, con o sin intereses, a un solo pago o por cuotas. También con espacios en blanco y su carta de instrucciones.",
-      consejos: ["Lo firma solo quien debe. Quien presta no lo firma: lo guarda.", "Si lo deja con espacios en blanco, se entrega junto con la carta de instrucciones (va en el mismo documento) y quien debe se queda con una copia de la carta. El pagaré solo puede llenarse como diga la carta.", "Los intereses no pueden pasar la tasa de usura que certifica la Superintendencia Financiera, que cambia cada mes: consúltela el día de la firma."],
+      consejos: ["Lo firma solo quien debe. Quien presta no lo firma: lo guarda.", "Si deja espacios en blanco, escoja cuáles: el valor, la fecha de vencimiento o los dos. La carta de instrucciones (va en el mismo documento) dice cómo se llenan solo esos espacios, y quien debe se queda con una copia. El pagaré solo puede llenarse como diga la carta.", "Los intereses no pueden pasar la tasa de usura que certifica la Superintendencia Financiera, que cambia cada mes: consúltela el día de la firma."],
       sinAnexos: 1, firmaEt: ["Municipio donde se firma", "Fecha de firma (creación)"],
       roles: [{ id: "deudor", et: "Quien debe y firma (parte deudora)", min: 1, max: 3, p: { contacto: 2 } },
         { id: "acreedor", et: "A favor de quién (quien presta)", min: 1, max: 1, p: { simple: 1 } }],
       campos: [
         { id: "pagareNum", et: "Número del pagaré", def: "001" },
         { id: "modalidad", et: "¿Cómo lo va a firmar?", tipo: "radio", op: [["lleno", "Lleno: con valor y fecha de pago"], ["blanco", "Con espacios en blanco y carta de instrucciones"]], def: "lleno" },
+        { id: "espacios", et: "¿Qué queda en blanco?", tipo: "radio", op: [["ambos", "El valor y la fecha de vencimiento"], ["fecha", "Solo la fecha de vencimiento (el valor queda escrito)"], ["valor", "Solo el valor (la fecha queda escrita)"]], def: "ambos", si: ["modalidad", "blanco"] },
         { id: "municipioPago", et: "Municipio donde se paga" },
-        { g: "Valor y pago", si: ["modalidad", "lleno"] },
-        { id: "valor", et: "Valor del pagaré", tipo: "dinero", si: ["modalidad", "lleno"] },
+        { g: "Valor y pago", si: [["modalidad", "lleno"], ["espacios", "fecha"], ["espacios", "valor"]] },
+        { id: "valor", et: "Valor del pagaré", tipo: "dinero", si: [["modalidad", "lleno"], ["espacios", "fecha"]] },
         { id: "formaPago", et: "Se paga", tipo: "radio", op: [["unico", "En un solo pago"], ["cuotas", "En cuotas mensuales"]], def: "unico", si: ["modalidad", "lleno"] },
-        { id: "fechaUnica", et: "Fecha del pago", tipo: "fecha", si: ["formaPago", "unico"] },
+        { id: "fechaUnica", et: "Fecha del pago", tipo: "fecha", si: [["formaPago", "unico"], ["espacios", "valor"]] },
         { id: "cuotas", et: "Número de cuotas", tipo: "numero", si: ["formaPago", "cuotas"] },
         { id: "cuotaValor", et: "Valor de cada cuota", tipo: "dinero", si: ["formaPago", "cuotas"], ayuda: "Las cuotas deben sumar el valor del pagaré." },
         { id: "primeraCuota", et: "Fecha de la primera cuota", tipo: "fecha", si: ["formaPago", "cuotas"] },
-        { id: "intereses", et: "¿Cobra intereses durante el plazo?", tipo: "radio", op: SI_NO, def: "no", si: ["modalidad", "lleno"] },
+        { id: "intereses", et: "¿Cobra intereses durante el plazo?", tipo: "radio", op: SI_NO, def: "no", si: [["modalidad", "lleno"], ["espacios", "fecha"]] },
         { id: "tasa", et: "Tasa de interés mensual (%)", ph: "Ej.: 1,5", si: ["intereses", "si"], ayuda: "Nunca por encima de la tasa de usura vigente." },
         { id: "interesModo", et: "Los intereses se pagan", tipo: "select", op: [["vencido", "Por mes vencido"], ["anticipado", "Por mes anticipado"]], si: ["intereses", "si"] },
         { id: "interesDia", et: "Día del mes en que se pagan", tipo: "numero", si: ["intereses", "si"] },
-        { id: "aceleraCuotas", et: "Se puede cobrar todo si se atrasa en … pagos", tipo: "numero", def: "1", si: [["formaPago", "cuotas"], ["intereses", "si"]] },
+        { id: "aceleraCuotas", et: "Se puede cobrar todo si se atrasa en … pagos", tipo: "numero", def: "1", si: [["formaPago", "cuotas"], ["intereses", "si"]], siTodas: [["modalidad", "lleno"]] },
         { g: "Deuda que respalda", si: ["modalidad", "blanco"] },
         { id: "obligacion", et: "Describa la deuda con precisión", tipo: "area", si: ["modalidad", "blanco"], ayuda: "El pagaré no podrá llenarse por otra deuda. Ej.: préstamo de $5.000.000 entregado el 1 de diciembre de 2026, con intereses del 1,5 % mensual, pagadero en 10 cuotas mensuales." },
         { id: "moraCarta", et: "Puede llenarse si se atrasa en … cuotas o mensualidades", tipo: "numero", def: "1", si: ["modalidad", "blanco"] },
@@ -912,7 +913,7 @@
   }
   function refrescar(ambito) {
     for (var i = 0; i < 3; i++) [].forEach.call(ambito.querySelectorAll("[data-campo]"), function (c) {
-      var ver = condicionCumple(c._def.si, ambito);
+      var ver = condicionCumple(c._def.si, ambito) && (!c._def.siTodas || c._def.siTodas.every(function (x) { return condicionCumple(x, ambito); }));
       c.hidden = !ver;
       [].forEach.call(c.querySelectorAll("input,select,textarea"), function (x) { x.disabled = !ver; });
     });
