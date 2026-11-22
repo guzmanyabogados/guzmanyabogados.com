@@ -346,27 +346,6 @@
         { id: "sustituir", et: "¿El apoderado puede pasar el poder a otra persona?", tipo: "radio", op: SI_NO, def: "no" }
       ]),
       adicional: "Facultades adicionales (opcional, bajo su responsabilidad)"
-    },
-    peticion: {
-      nombre: "Derecho de petición", corto: "Derecho de petición", precio: { auto: 20000, abogado: 80000 },
-      desc: "Ante cualquier entidad pública, EPS, bancos, empresas de servicios o empleadores.",
-      consejos: ["Plazos para responder: 15 días hábiles la petición general, 10 si pide documentos o información y 30 si es una consulta (artículo 14 de la Ley 1437 de 2011).", "Radíquelo y guarde la copia sellada o el número de radicado."],
-      roles: [{ id: "peticionario", et: "Quien presenta la petición", min: 1, max: 1, p: { contacto: 2, sinEstado: 1 } }],
-      campos: [
-        { g: "Destinatario" },
-        { id: "entidad", et: "Entidad o empresa" }, { id: "dependencia", et: "Dependencia (si la conoce)", req: 0 },
-        { id: "entidadMunicipio", et: "Municipio" },
-        { id: "tema", et: "Tema en pocas palabras", ph: "Ej.: copia del expediente del comparendo 123" },
-        { id: "porOtro", et: "¿Actúa en nombre de otra persona o empresa?", tipo: "radio", op: SI_NO, def: "no" },
-        { id: "calidad", et: "En calidad de", tipo: "select", op: [["apoderado", "Apoderado"], ["representante legal", "Representante legal"], ["agente oficioso", "Agente oficioso"]], si: ["porOtro", "si"] },
-        { id: "representado", et: "Nombre e identificación de la persona o empresa", si: ["porOtro", "si"] },
-        { g: "Contenido", ayuda: "Un hecho por línea, con fechas y datos que permitan ubicar el caso. Solo lo que pueda probar." },
-        { id: "hechos", et: "Hechos", tipo: "lista" },
-        { id: "peticiones", et: "Peticiones (lo que pide, en forma precisa)", tipo: "lista" },
-        { id: "fundamentos", et: "Fundamentos (opcional)", tipo: "area", req: 0, ayuda: "No es obligatorio citar normas. No cite normas que no haya verificado." },
-        { id: "notifMunicipio", et: "Municipio donde recibe respuesta" }
-      ],
-      adicional: null
     }
   };
 
