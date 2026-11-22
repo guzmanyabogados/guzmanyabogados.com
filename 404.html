@@ -3,200 +3,55 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0A1628">
+<link rel="icon" type="image/png" href="/assets/favicon.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="stylesheet" href="/assets/estilo.css">
 <title>Página no encontrada · Guzmán y Abogados</title>
 <meta name="robots" content="noindex">
-<link rel="icon" type="image/png" href="/assets/favicon.png">
-<style>
-:root {
-  /* Idea: la sobriedad de un escrito bien presentado. Papel claro, tinta azul de la oficina,
-     filetes dorados como los del membrete; el índice de asuntos con puntos guía. */
-  --tinta: #0F2340;
-  --tinta-suave: #3E4C63;
-  --papel: #FAF8F3;
-  --lavado: #EEF0F3;
-  --oro: #C9A85C;
-  --oro-texto: #8A6A2B;
-  --filete: #DDD3C1;
-  --display: "Cormorant Garamond", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
-  --texto: "Source Sans 3", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --ancho: 1120px;
-  color-scheme: light;
-}
-
-@font-face { font-family: "Cormorant Garamond"; font-weight: 600; font-style: normal; font-display: swap; src: url("/assets/fonts/cormorant-garamond-latin-600-normal.woff2") format("woff2"); }
-@font-face { font-family: "Cormorant Garamond"; font-weight: 700; font-style: normal; font-display: swap; src: url("/assets/fonts/cormorant-garamond-latin-700-normal.woff2") format("woff2"); }
-@font-face { font-family: "Cormorant Garamond"; font-weight: 600; font-style: italic; font-display: swap; src: url("/assets/fonts/cormorant-garamond-latin-600-italic.woff2") format("woff2"); }
-@font-face { font-family: "Source Sans 3"; font-weight: 400; font-style: normal; font-display: swap; src: url("/assets/fonts/source-sans-3-latin-400-normal.woff2") format("woff2"); }
-@font-face { font-family: "Source Sans 3"; font-weight: 600; font-style: normal; font-display: swap; src: url("/assets/fonts/source-sans-3-latin-600-normal.woff2") format("woff2"); }
-@font-face { font-family: "Source Sans 3"; font-weight: 700; font-style: normal; font-display: swap; src: url("/assets/fonts/source-sans-3-latin-700-normal.woff2") format("woff2"); }
-
-*, *::before, *::after { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body {
-  margin: 0;
-  background: var(--papel);
-  color: var(--tinta);
-  font-family: var(--texto);
-  font-size: 1.0625rem;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-}
-img { max-width: 100%; display: block; }
-a { color: var(--tinta); text-decoration-color: var(--oro); text-underline-offset: 3px; }
-a:hover { text-decoration-thickness: 2px; }
-:focus-visible { outline: 3px solid var(--oro); outline-offset: 3px; border-radius: 2px; }
-h1, h2, h3 { font-family: var(--display); font-weight: 700; line-height: 1.08; text-wrap: balance; margin: 0; letter-spacing: -0.005em; }
-p { margin: 0; }
-
-.envoltura { width: min(100% - 2.5rem, var(--ancho)); margin-inline: auto; }
-.saltar { position: absolute; left: -9999px; top: 0; background: var(--tinta); color: var(--papel); padding: .6rem 1rem; z-index: 50; }
-.saltar:focus { left: 1rem; top: 1rem; }
-
-/* Encabezado */
-.cabecera { border-bottom: 1px solid var(--filete); background: var(--papel); position: sticky; top: 0; z-index: 20; }
-.cabecera .envoltura { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 72px; }
-.marca { display: flex; align-items: center; gap: .75rem; text-decoration: none; color: var(--tinta); }
-.marca img { width: 44px; height: 44px; }
-.marca span { font-family: var(--display); font-size: 1.45rem; font-weight: 700; letter-spacing: .02em; line-height: 1; }
-.marca small { display: block; font-family: var(--texto); font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; color: var(--tinta-suave); margin-top: .3rem; font-weight: 600; }
-.menu { display: flex; align-items: center; gap: 1.5rem; }
-.menu a { text-decoration: none; font-weight: 600; font-size: .95rem; color: var(--tinta-suave); }
-.menu a:hover { color: var(--tinta); text-decoration: underline; text-decoration-color: var(--oro); }
-
-.boton {
-  display: inline-flex; align-items: center; justify-content: center; gap: .55rem;
-  min-height: 48px; padding: .7rem 1.3rem;
-  border-radius: 999px; border: 1.5px solid var(--tinta);
-  font-family: var(--texto); font-weight: 700; font-size: 1rem; text-decoration: none;
-  transition: background-color .2s ease, color .2s ease, transform .2s ease;
-}
-.boton svg { width: 20px; height: 20px; flex: none; }
-.boton-principal { background: var(--tinta); color: var(--papel); }
-.boton-principal:hover { background: #1B355C; }
-.boton-secundario { background: transparent; color: var(--tinta); }
-.boton-secundario:hover { background: var(--lavado); }
-.menu .boton { padding: .5rem 1.05rem; min-height: 44px; font-size: .95rem; color: var(--papel); }
-.menu .boton:hover { color: var(--papel); text-decoration: none; }
-
-/* Portada */
-.portada { padding-block: clamp(2.5rem, 6vw, 5rem) clamp(3rem, 7vw, 5.5rem); }
-.portada .envoltura { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: clamp(2rem, 5vw, 4.5rem); align-items: center; }
-.ante { font-size: .82rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--oro-texto); display: flex; align-items: center; gap: .75rem; }
-.ante::before { content: ""; width: 2.5rem; height: 1.5px; background: var(--oro); }
-.portada h1 { font-size: clamp(2.6rem, 5.4vw, 4.4rem); margin-top: 1.1rem; }
-.portada h1 em { font-style: italic; font-weight: 600; color: var(--tinta-suave); }
-.portada .entrada { font-size: 1.15rem; color: var(--tinta-suave); max-width: 38rem; margin-top: 1.4rem; }
-.acciones { display: flex; flex-wrap: wrap; gap: .8rem; margin-top: 2rem; }
-
-/* Ficha de la oficina: como un sello de notaría */
-.ficha {
-  background: var(--tinta); color: var(--papel); border-radius: 6px;
-  padding: 2rem 1.9rem 1.8rem; position: relative;
-  box-shadow: 0 22px 50px -28px rgba(15, 35, 64, .6);
-}
-.ficha::before { content: ""; position: absolute; inset: 10px; border: 1px solid rgba(201, 168, 92, .55); border-radius: 3px; pointer-events: none; }
-.ficha-sello { display: flex; align-items: center; gap: 1rem; padding-bottom: 1.2rem; border-bottom: 1px solid rgba(201, 168, 92, .35); }
-.ficha-sello img { width: 78px; height: 78px; }
-.ficha-sello p { font-family: var(--display); font-size: 1.55rem; font-weight: 700; color: var(--oro); line-height: 1.1; }
-.ficha-sello p small { display: block; font-family: var(--texto); font-size: .8rem; letter-spacing: .14em; text-transform: uppercase; color: #D8DEE8; font-weight: 600; margin-top: .35rem; }
-.ficha dl { margin: 1.1rem 0 0; display: grid; gap: .85rem; }
-.ficha dt { font-size: .74rem; letter-spacing: .16em; text-transform: uppercase; color: var(--oro); font-weight: 700; }
-.ficha dd { margin: .1rem 0 0; font-size: 1.02rem; line-height: 1.45; }
-.ficha a { color: var(--papel); text-decoration-color: rgba(201, 168, 92, .8); }
-
-/* Secciones */
-.seccion { padding-block: clamp(3.5rem, 7vw, 5.5rem); }
-.seccion-lavada { background: var(--lavado); }
-.titulo-seccion { display: grid; gap: .8rem; max-width: 46rem; margin-bottom: 2.6rem; }
-.titulo-seccion h2 { font-size: clamp(2rem, 3.6vw, 2.9rem); }
-.titulo-seccion p { color: var(--tinta-suave); font-size: 1.08rem; }
-
-/* Índice de asuntos con puntos guía */
-.indice { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2.6rem 4rem; }
-.grupo h3 { font-size: 1.55rem; padding-bottom: .55rem; border-bottom: 1.5px solid var(--tinta); display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
-.grupo h3 span { font-family: var(--texto); font-size: .75rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--oro-texto); }
-.grupo ul { list-style: none; margin: 0; padding: 0; }
-.grupo li { padding-block: .95rem; border-bottom: 1px solid var(--filete); }
-.asunto { display: flex; align-items: baseline; gap: .5rem; font-weight: 700; font-size: 1.06rem; }
-.asunto::after { content: ""; flex: 1; border-bottom: 2px dotted var(--filete); transform: translateY(-.3em); order: 1; }
-.asunto b { order: 0; font-weight: 700; }
-.asunto i { order: 2; font-style: normal; font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; color: var(--oro-texto); font-weight: 700; white-space: nowrap; }
-.grupo li p { color: var(--tinta-suave); margin-top: .3rem; font-size: .99rem; }
-
-/* Trámites en línea */
-.tramites { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(2rem, 5vw, 4rem); align-items: start; }
-.tramites ul { list-style: none; margin: 0; padding: 0; columns: 2; column-gap: 2.5rem; }
-.tramites li { break-inside: avoid; padding: .7rem 0 .7rem 1.6rem; border-bottom: 1px solid var(--filete); position: relative; }
-.tramites li::before { content: ""; position: absolute; left: 0; top: 1.25rem; width: .8rem; height: 1.5px; background: var(--oro); }
-.nota { margin-top: 1.4rem; font-size: .95rem; color: var(--tinta-suave); }
-
-/* Pasos para la cita */
-.pasos { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.5rem; counter-reset: paso; }
-.pasos li { counter-increment: paso; border-top: 1.5px solid var(--tinta); padding-top: 1.1rem; }
-.pasos li::before { content: counter(paso, upper-roman) "."; display: block; font-family: var(--display); font-size: 2.1rem; font-weight: 700; color: var(--oro-texto); line-height: 1; margin-bottom: .7rem; }
-.pasos h3 { font-family: var(--texto); font-size: 1.08rem; font-weight: 700; line-height: 1.3; }
-.pasos p { color: var(--tinta-suave); margin-top: .45rem; font-size: .98rem; }
-.aviso-ia { margin-top: 2.4rem; padding: 1.1rem 1.3rem; border-left: 0; border: 1px solid var(--filete); border-radius: 6px; background: var(--papel); color: var(--tinta-suave); font-size: .97rem; max-width: 52rem; }
-
-/* Oficina */
-.oficina { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; }
-.dato { background: #FFFFFF; border: 1px solid var(--filete); border-radius: 6px; padding: 1.6rem 1.5rem; display: grid; gap: .5rem; align-content: start; }
-.dato h3 { font-family: var(--texto); font-size: .78rem; letter-spacing: .16em; text-transform: uppercase; color: var(--oro-texto); font-weight: 700; }
-.dato p { font-size: 1.08rem; }
-.dato .boton { margin-top: .8rem; justify-self: start; }
-.horario { width: 100%; border-collapse: collapse; font-size: 1.02rem; }
-.horario td { padding: .3rem 0; border-bottom: 1px dotted var(--filete); font-variant-numeric: tabular-nums; }
-.horario td:last-child { text-align: right; }
-
-/* Pie */
-.pie { background: var(--tinta); color: #D8DEE8; padding-block: 3rem 2rem; font-size: .95rem; }
-.pie .envoltura { display: grid; gap: 1.8rem; }
-.pie-arriba { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1.5rem; align-items: center; }
-.pie .marca { color: var(--papel); }
-.pie .marca small { color: #B9C2D0; }
-.pie nav { display: flex; flex-wrap: wrap; gap: 1.3rem; }
-.pie a { color: var(--papel); text-decoration-color: rgba(201, 168, 92, .7); }
-.pie-legal { border-top: 1px solid rgba(201, 168, 92, .35); padding-top: 1.4rem; display: grid; gap: .5rem; color: #B9C2D0; font-size: .88rem; }
-
-/* WhatsApp flotante */
-.flotante {
-  position: fixed; right: 1.1rem; bottom: 1.1rem; z-index: 30;
-  display: inline-flex; align-items: center; gap: .5rem;
-  background: #1F7A4D; color: #FFFFFF; text-decoration: none; font-weight: 700;
-  border-radius: 999px; padding: .8rem 1.15rem; min-height: 52px;
-  box-shadow: 0 10px 26px -10px rgba(15, 35, 64, .55);
-}
-.flotante:hover { background: #18663F; }
-.flotante svg { width: 24px; height: 24px; }
-
-@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .boton { transition: none; } }
-
-@media (max-width: 960px) {
-  .portada .envoltura, .tramites { grid-template-columns: 1fr; }
-  .pasos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .oficina { grid-template-columns: 1fr; }
-  .menu a:not(.boton) { display: none; }
-}
-@media (max-width: 680px) {
-  .indice { grid-template-columns: 1fr; }
-  .tramites ul { columns: 1; }
-  .pasos { grid-template-columns: 1fr; }
-  .marca small { display: none; }
-  .marca span { font-size: 1.2rem; }
-  .marca img { width: 38px; height: 38px; }
-  .flotante span { display: none; }
-  .flotante { padding: .85rem; }
-}
-</style>
 </head>
 <body>
-<main class="documento" style="padding-block:5rem">
-  <div class="envoltura" style="max-width:40rem;display:grid;gap:1.2rem">
-    <img src="/assets/emblema-azul.png" alt="" width="88" height="88">
-    <h1 style="font-size:2.6rem">No encontramos esa página</h1>
+<header class="cabecera">
+  <div class="envoltura">
+    <a class="marca" href="/" aria-label="Guzmán y Abogados, inicio">
+      <img src="/assets/emblema-dorado.png" alt="" width="50" height="50">
+      <span>Guzmán y Abogados<small>Itagüí · Antioquia</small></span>
+    </a>
+    <nav class="menu" aria-label="Secciones">
+      <a href="/#asuntos">Asuntos</a>
+      <a href="/#tramites">Trámites en línea</a>
+      <a href="/#cita">Cita</a>
+      <a href="/#oficina">Oficina</a>
+      <a class="boton boton-oro" href="https://wa.me/573205639603?text=Hola%2C%20quisiera%20agendar%20una%20cita%20con%20el%20abogado." rel="noopener">WhatsApp</a>
+    </nav>
+  </div>
+</header>
+<main class="documento" id="contenido">
+  <div class="envoltura" style="max-width:40rem;display:grid;gap:1.3rem;padding-block:3rem">
+    <img src="/assets/emblema-dorado.png" alt="" width="96" height="96">
+    <h1>No encontramos esa página</h1>
     <p>Puede que la dirección haya cambiado. Vuelva al inicio o escríbanos por WhatsApp al 320 563 9603.</p>
-    <p style="display:flex;gap:.8rem;flex-wrap:wrap"><a class="boton boton-principal" href="/">Ir al inicio</a><a class="boton boton-secundario" href="https://wa.me/573205639603" rel="noopener">WhatsApp</a></p>
+    <p class="acciones"><a class="boton boton-oro" href="/">Ir al inicio</a><a class="boton boton-linea" href="https://wa.me/573205639603" rel="noopener">WhatsApp</a></p>
   </div>
 </main>
+<footer class="pie">
+  <div class="envoltura">
+    <div class="pie-arriba">
+      <a class="marca" href="/" aria-label="Guzmán y Abogados, volver al inicio">
+        <img src="/assets/emblema-dorado.png" alt="" width="50" height="50">
+        <span>Guzmán y Abogados<small>Itagüí · Antioquia</small></span>
+      </a>
+      <nav aria-label="Enlaces del pie">
+        <a href="https://www.facebook.com/guzmanyabogados" rel="noopener">Facebook</a>
+        <a href="https://www.instagram.com/guzmanyabogados" rel="noopener">Instagram</a>
+        <a href="/politica-de-datos.html">Política de tratamiento de datos</a>
+      </nav>
+    </div>
+    <div class="pie-legal">
+      <p>GUZMAN Y ABOGADOS CG · NIT 1036672933-1 · Calle 52 # 49-66, Itagüí, Antioquia</p>
+      <p>La información de esta página es general y no constituye asesoría jurídica sobre un caso concreto.</p>
+    </div>
+  </div>
+</footer>
 </body>
 </html>
