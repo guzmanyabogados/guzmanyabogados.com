@@ -505,6 +505,151 @@
         { id: "valorBien", et: "Valor del bien, para el caso de pérdida", tipo: "dinero", req: 0, si: [["bien", "vehiculo"], ["bien", "otro"]] }
       ],
       adicional: "Otros acuerdos entre las partes (opcional)"
+    },
+    acta_entrega_vehiculo: {
+      nombre: "Acta de entrega de vehículo y asunción de responsabilidad", corto: "Acta de entrega de vehículo", precio: { auto: 20000, abogado: 60000 },
+      desc: "Constancia de la hora en que el carro o la moto pasa a otra persona y de que esta responde desde ese momento.",
+      consejos: ["Sirve cuando se vendió o permutó y el traspaso está pendiente, o cuando se presta o se entrega a un conductor.", "Obliga a quien la firma, pero no impide que la víctima de un accidente o la autoridad de tránsito se dirijan contra quien figura como dueño: no reemplaza el traspaso."],
+      sinAnexos: 1, firmaEt: ["Municipio de la entrega", "Fecha de la entrega"],
+      roles: [{ id: "entrega", et: "Quien entrega (figura como propietario)", min: 1, max: 1, p: { civil: 1, contacto: 1 } },
+        { id: "recibe", et: "Quien recibe el vehículo", min: 1, max: 1, p: { civil: 1, contacto: 1 } }],
+      campos: [{ id: "hora", et: "Hora de la entrega", tipo: "hora" }].concat(VEHICULO, [
+        { id: "km", et: "Kilometraje", ph: "Ej.: 35.200" },
+        { id: "soatHasta", et: "SOAT vigente hasta", tipo: "fecha", req: 0 },
+        { id: "rtmHasta", et: "Revisión técnico-mecánica vigente hasta", tipo: "fecha", req: 0, ayuda: "Déjela en blanco si el vehículo todavía no la necesita." },
+        { id: "llaves", et: "Juegos de llaves", tipo: "numero", def: "2" },
+        { g: "Motivo de la entrega" },
+        { id: "opcion", et: "Se entrega porque", tipo: "radio", op: [["venta", "Se vendió o se permutó y el traspaso está pendiente"], ["prestamo", "Se presta o se entrega a un conductor"]], def: "venta" },
+        { id: "negocio", et: "Negocio", tipo: "radio", op: [["compraventa", "Compraventa"], ["permuta", "Permuta"]], def: "compraventa", si: ["opcion", "venta"] },
+        { id: "fechaNegocio", et: "Fecha del contrato", tipo: "fecha", si: ["opcion", "venta"] },
+        { id: "fechaTraspaso", et: "El traspaso se radica a más tardar el", tipo: "fecha", si: ["opcion", "venta"] },
+        { id: "uso", et: "Para qué se entrega", ph: "Ej.: uso personal / conducirlo en la ruta Itagüí - Medellín", si: ["opcion", "prestamo"] },
+        { id: "hasta", et: "Hasta qué fecha", tipo: "fecha", si: ["opcion", "prestamo"] },
+        { id: "categoria", et: "Categoría de la licencia de conducción", ph: "Ej.: B1, A2", si: ["opcion", "prestamo"] },
+        { id: "licenciaNum", et: "Número de la licencia de conducción", si: ["opcion", "prestamo"] },
+        { id: "cargas", et: "Además asume", def: "los impuestos, el SOAT y la revisión técnico-mecánica que se causen o venzan desde hoy" }
+      ]),
+      adicional: null
+    },
+    compraventa_muebles: {
+      nombre: "Contrato de compraventa de bienes muebles", corto: "Compraventa de bienes muebles", precio: { auto: 30000, abogado: 80000 },
+      desc: "Muebles y enseres, máquinas, equipos, surtido de mercancía, animales o embarcaciones. De contado o a plazos.",
+      consejos: ["Para carros y motos use la compraventa de vehículo.", "Para vender un negocio completo (establecimiento de comercio) pida la revisión del abogado."],
+      roles: [{ id: "vendedor", et: "Quien vende", min: 1, max: 3, p: { civil: 1, contacto: 1 } },
+        { id: "comprador", et: "Quien compra", min: 1, max: 3, p: { civil: 1, contacto: 1 } }],
+      campos: [
+        { g: "Lo que se vende" },
+        { id: "bien", et: "Se vende", tipo: "select", op: [["muebles", "Muebles, enseres o surtido de mercancía"], ["maquina", "Una máquina o un equipo"], ["animal", "Un animal"], ["embarcacion", "Una embarcación"]] },
+        { id: "inventario", et: "¿Los bienes van en un inventario que firman las partes?", tipo: "radio", op: SI_NO, def: "no", si: ["bien", "muebles"] },
+        { id: "relacion", et: "Relación de los bienes", tipo: "lista", si: ["inventario", "no"], ayuda: "Uno por línea, con cantidad, marca y estado. Ej.: 1 nevera Haceb de 300 litros, usada, en buen estado." },
+        { id: "mClase", et: "Clase de máquina o equipo", ph: "Ej.: horno industrial", si: ["bien", "maquina"] },
+        { id: "mMarca", et: "Marca", si: ["bien", "maquina"] }, { id: "mModelo", et: "Modelo", si: ["bien", "maquina"] },
+        { id: "mAnio", et: "Año de fabricación", si: ["bien", "maquina"] }, { id: "mSerie", et: "Número de serie", si: ["bien", "maquina"] },
+        { id: "mMotor", et: "Motor", req: 0, si: ["bien", "maquina"] }, { id: "mCapacidad", et: "Capacidad", req: 0, si: ["bien", "maquina"] },
+        { id: "mDocTipo", et: "Documento de origen", tipo: "select", op: [["factura", "Factura de compra"], ["importacion", "Declaración de importación"]], si: ["bien", "maquina"] },
+        { id: "mDocNum", et: "Número de ese documento", req: 0, si: ["bien", "maquina"] },
+        { id: "aEspecie", et: "Especie y raza", ph: "Ej.: equino criollo colombiano", si: ["bien", "animal"] },
+        { id: "aNombre", et: "Nombre del animal", req: 0, si: ["bien", "animal"] },
+        { id: "aSexo", et: "Sexo", tipo: "select", op: [["macho", "Macho"], ["hembra", "Hembra"]], si: ["bien", "animal"] },
+        { id: "aColor", et: "Color", si: ["bien", "animal"] }, { id: "aEdad", et: "Edad", ph: "Ej.: 4 años", si: ["bien", "animal"] },
+        { id: "aRegistro", et: "Registro o marca", req: 0, ph: "Ej.: registro número 123 de la asociación X / marca o hierro JG", si: ["bien", "animal"] },
+        { id: "docsAnimal", et: "Documentos que entrega con el animal", def: "el certificado veterinario, la guía de movilización y el registro", si: ["bien", "animal"] },
+        { id: "eTipo", et: "Tipo de embarcación", ph: "Ej.: lancha", si: ["bien", "embarcacion"] }, { id: "eNombre", et: "Nombre", si: ["bien", "embarcacion"] },
+        { id: "eMatricula", et: "Matrícula", si: ["bien", "embarcacion"] }, { id: "ePuerto", et: "Puerto de registro", si: ["bien", "embarcacion"] },
+        { id: "eEslora", et: "Eslora", ph: "Ej.: 6 metros", si: ["bien", "embarcacion"] }, { id: "eManga", et: "Manga", ph: "Ej.: 2 metros", si: ["bien", "embarcacion"] },
+        { id: "eMaterial", et: "Material del casco", si: ["bien", "embarcacion"] },
+        { id: "eMotorMarca", et: "Marca del motor", req: 0, si: ["bien", "embarcacion"] }, { id: "eMotorModelo", et: "Modelo del motor", req: 0, si: ["bien", "embarcacion"] },
+        { id: "eMotorSerie", et: "Serie del motor", req: 0, si: ["bien", "embarcacion"] }, { id: "ePotencia", et: "Potencia", req: 0, si: ["bien", "embarcacion"] },
+        { g: "Precio y pago" },
+        { id: "precio", et: "Precio", tipo: "dinero" },
+        { id: "formaPago", et: "Forma de pago", tipo: "radio", op: [["contado", "De contado"], ["plazos", "A plazos"]], def: "contado" },
+        { id: "medio", et: "Medio de pago", tipo: "radio", op: [["efectivo", "Efectivo"], ["transferencia", "Transferencia"]], def: "efectivo", si: ["formaPago", "contado"] },
+        { id: "tipoCuenta", et: "Tipo de cuenta", tipo: "select", op: [["de ahorros", "Ahorros"], ["corriente", "Corriente"]], si: ["medio", "transferencia"] },
+        { id: "cuenta", et: "Número de la cuenta", si: ["medio", "transferencia"] }, { id: "banco", et: "Banco", si: ["medio", "transferencia"] },
+        { id: "abono", et: "Valor que se paga a la firma", tipo: "dinero", si: ["formaPago", "plazos"] },
+        { id: "saldoForma", et: "El saldo se paga", tipo: "radio", op: [["unico", "En un solo pago"], ["cuotas", "En cuotas mensuales"]], def: "unico", si: ["formaPago", "plazos"] },
+        { id: "saldoFecha", et: "Fecha del pago del saldo", tipo: "fecha", si: ["saldoForma", "unico"] },
+        { id: "cuotas", et: "Número de cuotas", tipo: "numero", si: ["saldoForma", "cuotas"] },
+        { id: "cuotaValor", et: "Valor de cada cuota", tipo: "dinero", si: ["saldoForma", "cuotas"] },
+        { id: "primeraCuota", et: "Fecha de la primera cuota", tipo: "fecha", si: ["saldoForma", "cuotas"] },
+        { id: "moraCuotas", et: "El saldo se hace exigible si deja de pagar", tipo: "select", op: [["1", "Una cuota"], ["2", "Dos cuotas"]], si: ["formaPago", "plazos"] },
+        { id: "respaldo", et: "El saldo se respalda con", tipo: "select", op: [["ninguno", "Nada adicional"], ["letras", "Letras de cambio"], ["pagare", "Pagaré con carta de instrucciones"]], si: ["formaPago", "plazos"] },
+        { id: "lugarBienes", et: "Mientras paga, los bienes se mantienen en", ph: "Ej.: la Calle 50 # 50-10 de Itagüí", si: ["formaPago", "plazos"] },
+        { g: "Entrega, garantía y documentos" },
+        { id: "entregaCuando", et: "Se entregan", tipo: "radio", op: [["firma", "A la firma"], ["fecha", "En una fecha"]], def: "firma" },
+        { id: "fechaEntrega", et: "Fecha de entrega", tipo: "fecha", si: ["entregaCuando", "fecha"] },
+        { id: "lugarEntrega", et: "Lugar de entrega", ph: "Ej.: la Calle 30 # 20-10 de Envigado" },
+        { id: "garantia", et: "Garantía", tipo: "radio", op: [["usados", "Bienes usados, sin garantía de funcionamiento"], ["dias", "Garantía de buen funcionamiento por unos días"]], def: "usados", si: [["bien", "muebles"], ["bien", "maquina"], ["bien", "embarcacion"]] },
+        { id: "garantiaDias", et: "Días de garantía", tipo: "numero", def: "30", si: ["garantia", "dias"] },
+        { id: "docsPropiedad", et: "Documentos que entrega quien vende", tipo: "radio", op: [["facturas", "Las facturas"], ["documentos", "Los documentos de propiedad"]], def: "documentos" },
+        { id: "docsCuando", et: "Los entrega", tipo: "radio", op: [["firma", "A la firma"], ["pago", "Al pago total del precio"]], def: "firma" },
+        { id: "registro", et: "¿El bien tiene registro (embarcación, animal de registro, maquinaria registrada)?", tipo: "radio", op: SI_NO, def: "no" },
+        { id: "entidadRegistro", et: "El cambio de propietario se radica ante", tipo: "select", op: [["capitania", "La capitanía de puerto o inspección fluvial"], ["asociacion", "La asociación de criadores"], ["transito", "El organismo de tránsito"]], si: ["registro", "si"] },
+        { id: "registroCuando", et: "Se radica", tipo: "radio", op: [["pago", "Al pago total del precio"], ["fecha", "En una fecha"]], def: "pago", si: ["registro", "si"] },
+        { id: "registroFecha", et: "Fecha", tipo: "fecha", si: ["registroCuando", "fecha"] },
+        { id: "gastosRegistro", et: "Gastos del registro", tipo: "select", op: [["comprador", "Los paga quien compra"], ["vendedor", "Los paga quien vende"], ["mitades", "Por mitades"]], si: ["registro", "si"] },
+        { id: "penal", et: "Cláusula penal (valor de la pena)", tipo: "dinero", ayuda: "Suma que paga quien incumpla. Es frecuente pactar alrededor del 10 % del precio." }
+      ],
+      adicional: "Otros acuerdos entre las partes (opcional)"
+    },
+    prestamo_mutuo: {
+      nombre: "Contrato de préstamo de dinero (mutuo)", corto: "Préstamo de dinero", precio: { auto: 30000, abogado: 80000 },
+      desc: "Para prestar dinero entre particulares o comerciantes, con o sin intereses, en un solo pago o en cuotas.",
+      consejos: ["El préstamo solo existe desde que se entrega el dinero (artículo 2222 del Código Civil): entréguelo por transferencia o deje recibo.", "Nunca pacte intereses por encima de la tasa de usura, que certifica la Superintendencia Financiera y cambia cada mes: consúltela el día de la firma. Quien cobra de más se expone a perder los intereses y a una denuncia por usura.", "Se recomienda reconocer las firmas en notaría y acompañar el contrato con un pagaré y su carta de instrucciones."],
+      roles: [{ id: "acreedor", et: "Quien presta (acreedor)", min: 1, max: 1, p: { juridica: 1, contacto: 2 } },
+        { id: "deudor", et: "Quien recibe el préstamo (deudor)", min: 1, max: 1, p: { juridica: 1, contacto: 2 } },
+        { id: "fiador", et: "Deudor solidario o fiador", min: 1, max: 1, p: { simple: 1 }, si: ["garantias", "fiador"] }],
+      campos: [
+        { g: "El préstamo" },
+        { id: "valor", et: "Valor del préstamo", tipo: "dinero" },
+        { id: "medioEntrega", et: "El dinero se entrega", tipo: "radio", op: [["transferencia", "Por transferencia"], ["efectivo", "En efectivo"], ["cheque", "En cheque"]], def: "transferencia" },
+        { id: "entTipoCuenta", et: "Tipo de cuenta de quien recibe", tipo: "select", op: [["de ahorros", "Ahorros"], ["corriente", "Corriente"]], si: ["medioEntrega", "transferencia"] },
+        { id: "entCuenta", et: "Número de la cuenta", si: ["medioEntrega", "transferencia"] }, { id: "entBanco", et: "Banco", si: ["medioEntrega", "transferencia"] },
+        { id: "chequeNum", et: "Número del cheque", si: ["medioEntrega", "cheque"] }, { id: "chequeBanco", et: "Banco del cheque", si: ["medioEntrega", "cheque"] },
+        { g: "Devolución" },
+        { id: "formaPago", et: "Se devuelve", tipo: "radio", op: [["unico", "En un solo pago"], ["cuotas", "En cuotas mensuales"]], def: "unico" },
+        { id: "fechaUnica", et: "Fecha del pago", tipo: "fecha", si: ["formaPago", "unico"] },
+        { id: "cuotas", et: "Número de cuotas", tipo: "numero", si: ["formaPago", "cuotas"] },
+        { id: "cuotaValor", et: "Valor de cada cuota", tipo: "dinero", si: ["formaPago", "cuotas"] },
+        { id: "primeraCuota", et: "Fecha de la primera cuota", tipo: "fecha", si: ["formaPago", "cuotas"] },
+        { id: "medioPago", et: "Los pagos se hacen", tipo: "radio", op: [["transferencia", "Por transferencia"], ["efectivo", "En efectivo contra recibo"]], def: "transferencia" },
+        { id: "pagTipoCuenta", et: "Tipo de cuenta de quien presta", tipo: "select", op: [["de ahorros", "Ahorros"], ["corriente", "Corriente"]], si: ["medioPago", "transferencia"] },
+        { id: "pagCuenta", et: "Número de la cuenta", si: ["medioPago", "transferencia"] }, { id: "pagBanco", et: "Banco", si: ["medioPago", "transferencia"] },
+        { g: "Intereses y garantías" },
+        { id: "intereses", et: "¿Cobra intereses de plazo?", tipo: "radio", op: SI_NO, def: "si" },
+        { id: "tasa", et: "Tasa (%)", ph: "Ej.: 1,5", si: ["intereses", "si"], ayuda: "Nunca por encima de la tasa de usura vigente." },
+        { id: "tipoTasa", et: "La tasa es", tipo: "select", op: [["mensual", "Mensual"], ["anual", "Efectiva anual"]], si: ["intereses", "si"] },
+        { id: "cuotasMora", et: "Se puede cobrar todo si se atrasa en … cuotas", tipo: "numero", def: "2" },
+        { id: "diasMora", et: "o si se atrasa en los intereses más de … días", tipo: "numero", def: "30" },
+        { id: "garantias", et: "Garantías", tipo: "checks", req: 0, op: [["pagare", "Pagaré con carta de instrucciones"], ["fiador", "Deudor solidario o fiador"], ["real", "Hipoteca o prenda (se constituye después)"]], def: ["pagare"] },
+        { id: "pagareNum", et: "Número del pagaré", def: "001", si: ["garantias", "pagare"] },
+        { id: "garantiaReal", et: "Garantía real", tipo: "radio", op: [["hipoteca", "Hipoteca sobre un inmueble"], ["prenda", "Garantía mobiliaria sobre un vehículo"]], def: "hipoteca", si: ["garantias", "real"] },
+        { id: "garantiaMatricula", et: "Matrícula del inmueble", si: ["garantiaReal", "hipoteca"] },
+        { id: "garantiaPlaca", et: "Placa del vehículo", si: ["garantiaReal", "prenda"] },
+        { id: "garantiaDias", et: "Días para constituirla", tipo: "numero", def: "30", si: ["garantias", "real"] }
+      ],
+      adicional: "Otros acuerdos entre las partes (opcional)"
+    },
+    prestacion_servicios: {
+      nombre: "Contrato de prestación de servicios independientes", corto: "Prestación de servicios", precio: { auto: 30000, abogado: 80000 },
+      desc: "Para contratar a un independiente que hace un trabajo concreto con sus propios medios: contador, diseñador, técnico, asesor.",
+      consejos: ["No lo use para alguien que va a cumplir horario, recibir órdenes o trabajar todos los días en el negocio (administrador, vendedor, oficios varios). Esa persona es trabajadora aunque firme este contrato (artículos 23 y 24 del Código Sustantivo del Trabajo), y usted queda expuesto a pagar prestaciones, seguridad social y sanciones. En ese caso pida un contrato de trabajo al abogado.", "Confirme con el contador quién debe afiliar y pagar la ARL según la duración y el riesgo del servicio."],
+      roles: [{ id: "contratante", et: "Quien contrata", min: 1, max: 1, p: { juridica: 1, civil: 1, contacto: 1 } },
+        { id: "contratista", et: "Quien presta el servicio (contratista)", min: 1, max: 1, p: { juridica: 1, civil: 1, contacto: 1 } }],
+      campos: [
+        { g: "El servicio" },
+        { id: "servicio", et: "Servicio", ph: "Ej.: el diseño de la página web del negocio" },
+        { id: "actividades", et: "Actividades o entregas, con sus fechas", tipo: "lista", ayuda: "Una por línea. Ej.: propuesta de diseño, el 1 de diciembre de 2026." },
+        { id: "inicio", et: "Fecha de inicio", tipo: "fecha" }, { id: "fin", et: "Fecha de terminación", tipo: "fecha" },
+        { g: "Honorarios" },
+        { id: "honorarios", et: "Valor de los honorarios", tipo: "dinero" },
+        { id: "modalidad", et: "Ese valor es", tipo: "radio", op: [["total", "Por todo el servicio"], ["mensual", "Mensual"]], def: "total" },
+        { id: "formaHonorarios", et: "Se pagan", tipo: "radio", op: [["anticipo", "Una parte a la firma y el resto contra entrega"], ["entregas", "Dentro de unos días después de cada entrega o informe"]], def: "entregas" },
+        { id: "anticipo", et: "Valor que se paga a la firma", tipo: "dinero", si: ["formaHonorarios", "anticipo"] },
+        { id: "diasPago", et: "Días para pagar después de cada entrega", tipo: "numero", def: "5", si: ["formaHonorarios", "entregas"] },
+        { id: "diasAviso", et: "Días de aviso para terminarlo antes", tipo: "numero", def: "15" }
+      ],
+      adicional: "Otros acuerdos entre las partes (opcional)"
     }
   };
 
@@ -623,6 +768,7 @@
     if (!otro || otro.hidden) return false;
     var v = otro._leer();
     if (si[1] === "<100") return Number(v || 100) < 100;
+    if (Array.isArray(v)) return v.indexOf(si[1]) >= 0;
     return v === si[1];
   }
   function refrescar(ambito) {
@@ -858,8 +1004,8 @@
   var GRUPOS = [
     ["Arrendamiento", ["arriendo_vivienda", "arriendo_local", "acta_entrega_inmueble", "cuenta_cobro_canones", "aviso_arrendatario"]],
     ["Inmuebles", ["promesa", "poder_inmueble_venta"]],
-    ["Vehículos", ["vehiculo", "poder_vehiculo"]],
-    ["Contratos y deudas", ["comodato", "recibo_abono"]],
+    ["Vehículos", ["vehiculo", "acta_entrega_vehiculo", "poder_vehiculo"]],
+    ["Contratos y deudas", ["compraventa_muebles", "prestacion_servicios", "comodato", "prestamo_mutuo", "recibo_abono"]],
     ["Poderes y trámites", ["poder_tramites"]]
   ];
   function catalogo() {
