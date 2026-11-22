@@ -1,7 +1,8 @@
 // Guzmán y Abogados: funcionamiento como app instalable.
 // Páginas: primero la red (para que siempre salga lo último) y, sin conexión, la copia guardada.
-// Archivos estáticos: primero la copia guardada.
-const VERSION = "ga-v2";
+// Scripts y estilos también primero la red, para que un cambio llegue de inmediato.
+// Imágenes: primero la copia guardada.
+const VERSION = "ga-v3";
 const BASICOS = ["/", "/index.html", "/documentos.html", "/pago-recibido.html", "/politica-de-datos.html",
   "/assets/estilo.css", "/assets/emblema-dorado.png", "/assets/icono-192.png", "/assets/icono-512.png"];
 
@@ -18,7 +19,8 @@ self.addEventListener("fetch", (e) => {
   if (req.method !== "GET") return;
   const url = new URL(req.url);
   if (url.origin !== location.origin) return; // Wompi, Google y WhatsApp nunca pasan por aquí
-  if (req.mode === "navigate" || req.headers.get("accept")?.includes("text/html")) {
+  const esImagen = /\.(png|jpe?g|webp|svg|ico|gif)$/i.test(url.pathname);
+  if (!esImagen) {
     e.respondWith(fetch(req).then((r) => { const copia = r.clone(); caches.open(VERSION).then((c) => c.put(req, copia)); return r; })
       .catch(() => caches.match(req).then((r) => r || caches.match("/index.html"))));
     return;
