@@ -1,7 +1,7 @@
 // Guzmán y Abogados: funcionamiento como app instalable.
 // Páginas: primero la red (para que siempre salga lo último) y, sin conexión, la copia guardada.
 // Archivos estáticos: primero la copia guardada.
-const VERSION = "ga-v1";
+const VERSION = "ga-v2";
 const BASICOS = ["/", "/index.html", "/documentos.html", "/pago-recibido.html", "/politica-de-datos.html",
   "/assets/estilo.css", "/assets/emblema-dorado.png", "/assets/icono-192.png", "/assets/icono-512.png"];
 
