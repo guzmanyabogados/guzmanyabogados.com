@@ -252,7 +252,6 @@ p { margin: 0; }
 .aviso { margin-top: 1.8rem; padding: 1rem 1.2rem; border-left: 3px solid var(--oro); background: rgba(10, 22, 40, .45); font-size: .95rem; color: var(--niebla); }
 .aviso b { color: var(--oro-claro); font-weight: 700; }
 .tarjeta .aviso-corto { font-size: .82rem; color: var(--niebla); opacity: .85; flex: 0; font-style: italic; }
-.instalar-ios { margin-top: .9rem; font-size: .92rem; color: var(--oro-claro); }
 button.boton { font: inherit; cursor: pointer; }
 
 /* ===== Documentos en línea ===== */
@@ -338,3 +337,21 @@ button.boton { font: inherit; cursor: pointer; }
 #app-cert #pago p { margin: 0 0 .9rem; }
 #app-cert .ref-cert { color: var(--oro-claro); font-size: .95rem; margin: .2rem 0 1rem; overflow-wrap: anywhere; }
 #app-cert #pago h1 { margin: .4rem 0 1rem; }
+
+/* Guía para instalar la app con el logo */
+html.sin-scroll { overflow: hidden; }
+.instalar-capa { position: fixed; inset: 0; z-index: 100; background: rgba(5, 12, 24, .78); display: grid; place-items: center; padding: 1rem; }
+.instalar-caja { position: relative; width: min(100%, 26rem); max-height: 92vh; overflow-y: auto; background: var(--azul-alto, #13284A); border: 1px solid var(--filete); border-radius: 10px; padding: 1.6rem 1.4rem 1.2rem; box-shadow: 0 24px 60px rgba(0, 0, 0, .5); color: var(--marfil); }
+.instalar-cerrar { position: absolute; top: .4rem; right: .5rem; background: none; border: 0; color: var(--niebla); font-size: 1.8rem; line-height: 1; cursor: pointer; min-width: 44px; min-height: 44px; }
+.instalar-vista { display: grid; justify-items: center; gap: .35rem; margin: .2rem 0 .4rem; }
+.instalar-vista img { border-radius: 16px; box-shadow: 0 6px 18px rgba(0, 0, 0, .45); }
+.instalar-vista span { font-size: .82rem; color: var(--marfil); }
+.instalar-caja h2 { font-size: 1.45rem; margin: .8rem 0 .6rem; color: var(--oro-claro); text-align: center; }
+.instalar-nota { font-size: .88rem; color: var(--niebla); text-align: center; margin: .2rem 0; }
+.instalar-pasos { list-style: none; counter-reset: paso; margin: .6rem 0 .8rem; padding: 0; display: grid; gap: .7rem; }
+.instalar-pasos li { counter-increment: paso; display: grid; grid-template-columns: 2.4rem 1fr; gap: .7rem; align-items: center; font-size: .98rem; line-height: 1.4; }
+.instalar-pasos li b { color: var(--marfil); }
+.paso-icono { position: relative; width: 2.4rem; height: 2.4rem; border-radius: 8px; background: rgba(201, 168, 92, .14); color: var(--oro-claro); display: grid; place-items: center; }
+.paso-icono svg { width: 1.35rem; height: 1.35rem; }
+.paso-icono::before { content: counter(paso); position: absolute; top: -.45rem; left: -.45rem; width: 1.15rem; height: 1.15rem; border-radius: 50%; background: var(--oro); color: var(--noche); font-size: .72rem; font-weight: 700; display: grid; place-items: center; }
+.instalar-ya { width: 100%; justify-content: center; margin: .6rem 0; }
