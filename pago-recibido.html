@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es-CO">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0A1628">
+<link rel="icon" type="image/png" href="/assets/favicon.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="stylesheet" href="/assets/estilo.css">
+<title>Confirmar cita · Guzmán y Abogados</title>
+<meta name="robots" content="noindex">
+</head>
+<body>
+<header class="cabecera">
+  <div class="envoltura">
+    <a class="marca" href="/" aria-label="Guzmán y Abogados, inicio">
+      <img src="/assets/emblema-dorado.png" alt="" width="50" height="50">
+      <span>Guzmán y Abogados<small>Itagüí · Antioquia</small></span>
+    </a>
+    <nav class="menu" aria-label="Secciones">
+      <a href="/#asuntos">Asuntos</a>
+      <a href="/#tramites">Trámites en línea</a>
+      <a href="/#cita">Cita</a>
+      <a href="/#oficina">Oficina</a>
+      <a class="boton boton-oro" href="https://wa.me/573205639603?text=Hola%2C%20quisiera%20agendar%20una%20cita%20con%20el%20abogado." rel="noopener">WhatsApp</a>
+    </nav>
+  </div>
+</header>
+<main class="documento" id="contenido">
+  <div class="envoltura" style="max-width:40rem;display:grid;gap:1.3rem;padding-block:3rem">
+    <img src="/assets/emblema-dorado.png" alt="" width="96" height="96">
+    <p class="ante" id="estado">Pago de la consulta</p>
+    <h1 id="titulo">Confirmemos su cita</h1>
+    <p id="texto">Toque el botón para escribirnos por WhatsApp. Ya sabremos que viene del pago y le confirmamos la fecha y la hora de su cita con el abogado.</p>
+    <p class="acciones"><a class="boton boton-oro" id="whatsapp" href="https://wa.me/573205639603?text=Hola%2C%20acabo%20de%20pagar%20la%20consulta%20con%20el%20abogado.%20Quiero%20confirmar%20mi%20cita." rel="noopener">Confirmar por WhatsApp</a><a class="boton boton-linea" href="/">Ir al inicio</a></p>
+  </div>
+</main>
+<footer class="pie">
+  <div class="envoltura">
+    <div class="pie-arriba">
+      <a class="marca" href="/" aria-label="Guzmán y Abogados, volver al inicio">
+        <img src="/assets/emblema-dorado.png" alt="" width="50" height="50">
+        <span>Guzmán y Abogados<small>Itagüí · Antioquia</small></span>
+      </a>
+      <nav aria-label="Enlaces del pie">
+        <a href="https://www.facebook.com/guzmanyabogados" rel="noopener">Facebook</a>
+        <a href="https://www.instagram.com/guzmanyabogados" rel="noopener">Instagram</a>
+        <a href="/politica-de-datos.html">Política de tratamiento de datos</a>
+      </nav>
+    </div>
+    <div class="pie-legal">
+      <p>GUZMAN Y ABOGADOS CG · NIT 1036672933-1 · Calle 52 # 49-66, Itagüí, Antioquia</p>
+      <p>La información de esta página es general y no constituye asesoría jurídica sobre un caso concreto.</p>
+    </div>
+  </div>
+</footer>
+<script>
+(function () {
+  var id = new URLSearchParams(location.search).get("id");
+  if (!id || !/^[0-9A-Za-z-]+$/.test(id)) return;
+  var boton = document.getElementById("whatsapp");
+  var mensaje = function (extra) {
+    boton.href = "https://wa.me/573205639603?text=" + encodeURIComponent("Hola, " + extra + " Referencia de pago: " + id + ". Quiero confirmar mi cita.");
+  };
+  mensaje("acabo de pagar la consulta con el abogado.");
+  fetch("https://production.wompi.co/v1/transactions/" + id)
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (j) {
+      var s = j && j.data && j.data.status;
+      var estado = document.getElementById("estado"), titulo = document.getElementById("titulo"), texto = document.getElementById("texto");
+      if (s === "APPROVED") {
+        estado.textContent = "Pago aprobado";
+        titulo.textContent = "Gracias, recibimos su pago";
+        texto.textContent = "Toque el botón para escribirnos por WhatsApp y le confirmamos la fecha y la hora de su cita con el abogado.";
+      } else if (s === "PENDING") {
+        estado.textContent = "Pago en proceso";
+        titulo.textContent = "Su pago se está procesando";
+        texto.textContent = "Escríbanos por WhatsApp y le confirmamos la cita apenas se apruebe el pago.";
+        mensaje("hice el pago de la consulta y está en proceso.");
+      } else if (s === "DECLINED" || s === "VOIDED" || s === "ERROR") {
+        estado.textContent = "Pago no aprobado";
+        titulo.textContent = "El pago no se pudo completar";
+        texto.textContent = "Puede intentarlo de nuevo con otro medio de pago o escribirnos por WhatsApp y le ayudamos.";
+        mensaje("intenté pagar la consulta pero el pago no se aprobó.");
+        boton.textContent = "Escribir por WhatsApp";
+      }
+    })
+    .catch(function () {});
+})();
+</script>
+</body>
+</html>
