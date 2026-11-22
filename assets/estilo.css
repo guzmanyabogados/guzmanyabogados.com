@@ -231,3 +231,19 @@ p { margin: 0; }
   .flotante { padding: .85rem; }
   .mapa { min-height: 320px; }
 }
+
+/* Trámites en línea con pago */
+.tarjetas { list-style: none; margin: 2.4rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.2rem; }
+.tarjeta { background: rgba(10, 22, 40, .55); border: 1px solid var(--filete); padding: 1.6rem 1.5rem 1.4rem; display: flex; flex-direction: column; gap: .7rem; position: relative; }
+.tarjeta::before { content: ""; position: absolute; inset: 6px; border: 1px solid var(--filete-suave); pointer-events: none; }
+.tarjeta h3 { font-family: var(--display); font-weight: 700; font-size: 1.45rem; line-height: 1.15; color: var(--marfil); margin: 0; }
+.tarjeta p { margin: 0; color: var(--niebla); font-size: .98rem; flex: 1; }
+.acciones-tarjeta { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1.1rem; margin-top: .4rem; position: relative; }
+.acciones-tarjeta .boton { padding: .7rem 1.2rem; font-size: .9rem; }
+.enlace-wa { color: var(--oro-claro); font-size: .92rem; text-decoration: underline; text-underline-offset: 3px; }
+.enlace-wa:hover { color: var(--marfil); }
+.otros { margin-top: 2.6rem; display: block; }
+.otros .nota-titulo { font-family: var(--display); font-size: 1.3rem; color: var(--oro-claro); margin: 0 0 .6rem; }
+.otros ul { columns: 2; }
+@media (max-width: 1000px) { .tarjetas { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 700px) { .tarjetas { grid-template-columns: 1fr; } .otros ul { columns: 1; } }

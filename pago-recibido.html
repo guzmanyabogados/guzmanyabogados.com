@@ -69,16 +69,23 @@
     .then(function (j) {
       var d = j && j.data; if (!d) return;
       var s = d.status, monto = d.amount_in_cents;
-      var servicio = monto === 6000000 ? "consulta" : (monto === 3200000 ? "certificado" : "");
+      var servicios = {6000000: "consulta", 2900000: "tradicion", 3200000: "tradicion", 6900000: "ficha", 9000000: "avaluo", 4900000: "firma", 1900000: "firma"};
+      var servicio = servicios[monto] || (monto % 4900000 === 0 || monto % 1900000 === 0 ? "firma" : "");
       if (s === "APPROVED") {
         estado.textContent = "Pago aprobado";
         titulo.textContent = "Gracias, recibimos su pago";
         if (servicio === "consulta") {
           texto.textContent = "Toque el botón para escribirnos por WhatsApp y le confirmamos la fecha y la hora de su cita con el abogado.";
           mensaje("acabo de pagar la consulta con el abogado. Quiero confirmar mi cita.");
-        } else if (servicio === "certificado") {
-          texto.textContent = "Toque el botón y envíenos por WhatsApp el número de matrícula inmobiliaria (o la dirección y el municipio del inmueble). Le enviamos el certificado en PDF por ese mismo chat.";
-          mensaje("acabo de pagar el certificado de tradición y libertad. Matrícula inmobiliaria:");
+        } else if (servicio === "tradicion" || servicio === "ficha" || servicio === "avaluo") {
+          var nombre = servicio === "tradicion" ? "el certificado de tradición y libertad" : (servicio === "ficha" ? "la ficha predial" : "el certificado de avalúo catastral");
+          texto.textContent = "Ya tenemos los datos que escribió en el pago. Le enviamos " + nombre + " en PDF al correo o al WhatsApp que indicó, lo más pronto posible dentro del horario de atención. Si tiene alguna duda, escríbanos por WhatsApp.";
+          mensaje("acabo de pagar " + nombre + " en línea.");
+          boton.textContent = "Escribir por WhatsApp";
+        } else if (servicio === "firma") {
+          texto.textContent = "Si todavía no nos ha enviado el documento, toque el botón y envíelo en PDF por WhatsApp, o envíelo al correo notificaciones@guzmanyabogados.com. Le avisamos cuando esté listo.";
+          mensaje("acabo de pagar la firma de un documento. Les envío el PDF.");
+          boton.textContent = "Enviar el documento por WhatsApp";
         } else {
           texto.textContent = "Toque el botón para escribirnos por WhatsApp y continuamos con su trámite.";
         }
