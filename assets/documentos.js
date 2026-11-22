@@ -650,6 +650,145 @@
         { id: "diasAviso", et: "Días de aviso para terminarlo antes", tipo: "numero", def: "15" }
       ],
       adicional: "Otros acuerdos entre las partes (opcional)"
+    },
+    pagare: {
+      nombre: "Pagaré", corto: "Pagaré", precio: { auto: 20000, abogado: 60000 },
+      desc: "Respalda una deuda en dinero, con o sin intereses, a un solo pago o por cuotas. También con espacios en blanco y su carta de instrucciones.",
+      consejos: ["Lo firma solo quien debe. Quien presta no lo firma: lo guarda.", "Si lo deja con espacios en blanco, se entrega junto con la carta de instrucciones (va en el mismo documento) y quien debe se queda con una copia de la carta. El pagaré solo puede llenarse como diga la carta.", "Los intereses no pueden pasar la tasa de usura que certifica la Superintendencia Financiera, que cambia cada mes: consúltela el día de la firma."],
+      sinAnexos: 1, firmaEt: ["Municipio donde se firma", "Fecha de firma (creación)"],
+      roles: [{ id: "deudor", et: "Quien debe y firma (parte deudora)", min: 1, max: 3, p: { contacto: 2 } },
+        { id: "acreedor", et: "A favor de quién (quien presta)", min: 1, max: 1, p: { simple: 1 } }],
+      campos: [
+        { id: "pagareNum", et: "Número del pagaré", def: "001" },
+        { id: "modalidad", et: "¿Cómo lo va a firmar?", tipo: "radio", op: [["lleno", "Lleno: con valor y fecha de pago"], ["blanco", "Con espacios en blanco y carta de instrucciones"]], def: "lleno" },
+        { id: "municipioPago", et: "Municipio donde se paga" },
+        { g: "Valor y pago", si: ["modalidad", "lleno"] },
+        { id: "valor", et: "Valor del pagaré", tipo: "dinero", si: ["modalidad", "lleno"] },
+        { id: "formaPago", et: "Se paga", tipo: "radio", op: [["unico", "En un solo pago"], ["cuotas", "En cuotas mensuales"]], def: "unico", si: ["modalidad", "lleno"] },
+        { id: "fechaUnica", et: "Fecha del pago", tipo: "fecha", si: ["formaPago", "unico"] },
+        { id: "cuotas", et: "Número de cuotas", tipo: "numero", si: ["formaPago", "cuotas"] },
+        { id: "cuotaValor", et: "Valor de cada cuota", tipo: "dinero", si: ["formaPago", "cuotas"], ayuda: "Las cuotas deben sumar el valor del pagaré." },
+        { id: "primeraCuota", et: "Fecha de la primera cuota", tipo: "fecha", si: ["formaPago", "cuotas"] },
+        { id: "intereses", et: "¿Cobra intereses durante el plazo?", tipo: "radio", op: SI_NO, def: "no", si: ["modalidad", "lleno"] },
+        { id: "tasa", et: "Tasa de interés mensual (%)", ph: "Ej.: 1,5", si: ["intereses", "si"], ayuda: "Nunca por encima de la tasa de usura vigente." },
+        { id: "interesModo", et: "Los intereses se pagan", tipo: "select", op: [["vencido", "Por mes vencido"], ["anticipado", "Por mes anticipado"]], si: ["intereses", "si"] },
+        { id: "interesDia", et: "Día del mes en que se pagan", tipo: "numero", si: ["intereses", "si"] },
+        { id: "aceleraCuotas", et: "Se puede cobrar todo si se atrasa en … pagos", tipo: "numero", def: "1", si: [["formaPago", "cuotas"], ["intereses", "si"]] },
+        { g: "Deuda que respalda", si: ["modalidad", "blanco"] },
+        { id: "obligacion", et: "Describa la deuda con precisión", tipo: "area", si: ["modalidad", "blanco"], ayuda: "El pagaré no podrá llenarse por otra deuda. Ej.: préstamo de $5.000.000 entregado el 1 de diciembre de 2026, con intereses del 1,5 % mensual, pagadero en 10 cuotas mensuales." },
+        { id: "moraCarta", et: "Puede llenarse si se atrasa en … cuotas o mensualidades", tipo: "numero", def: "1", si: ["modalidad", "blanco"] },
+        { g: "Hipoteca" },
+        { id: "hipoteca", et: "¿La deuda tiene hipoteca?", tipo: "radio", op: SI_NO, def: "no" },
+        { id: "hipEscritura", et: "Número de la escritura", si: ["hipoteca", "si"] },
+        { id: "hipFecha", et: "Fecha de la escritura", tipo: "fecha", si: ["hipoteca", "si"] },
+        { id: "hipNotaria", et: "Notaría", ph: "Ej.: Primera", si: ["hipoteca", "si"] },
+        { id: "hipMunicipio", et: "Municipio de la notaría", si: ["hipoteca", "si"] },
+        { id: "hipMatricula", et: "Matrícula inmobiliaria del inmueble", ph: "Ej.: 001-123456", si: ["hipoteca", "si"] }
+      ],
+      adicional: null
+    },
+    aviso_aumento_canon: {
+      nombre: "Aviso de reajuste del canon de arrendamiento", corto: "Aviso de aumento del canon", precio: { auto: 20000, abogado: 60000 },
+      desc: "Carta del arrendador para informar el aumento anual del arriendo de vivienda o de local.",
+      consejos: ["Vivienda: solo se puede aumentar cada doce (12) meses y como máximo el IPC del año anterior que certifica el DANE (artículo 20 de la Ley 820 de 2003). El arriendo tampoco puede pasar del 1 % del valor comercial del inmueble.", "Local comercial: el aumento es el que diga el contrato.", "Envíe la carta por correo certificado o por el medio pactado en el contrato y guarde la constancia: si no se avisa así, el arrendatario no está obligado a pagar el aumento."],
+      sinAnexos: 1, firmaEt: ["Municipio desde donde envía la carta", "Fecha de la carta"],
+      roles: [{ id: "arrendador", et: "Quien arrienda (arrendador)", min: 1, max: 3, p: { juridica: 1, contacto: 2 } }],
+      campos: [
+        { g: "A quién va dirigida" },
+        { id: "destTrato", et: "Tratamiento", tipo: "select", op: [["Señor", "Señor"], ["Señora", "Señora"], ["Señores", "Señores (empresa o varias personas)"]] },
+        { id: "arrendatarioNombre", et: "Nombre del arrendatario", mayus: 1 },
+        { g: "El inmueble y el contrato" },
+        { id: "inDireccion", et: "Dirección del inmueble, con barrio", ph: "Ej.: Calle 52 # 49-10, apartamento 301, barrio Centro" },
+        { id: "inMunicipio", et: "Municipio del inmueble" },
+        { id: "fechaContrato", et: "Fecha del contrato", tipo: "fecha" },
+        { id: "tipo", et: "El inmueble es", tipo: "radio", op: [["vivienda", "Vivienda"], ["local", "Local u oficina"]], def: "vivienda" },
+        { g: "El aumento" },
+        { id: "canonActual", et: "Canon actual", tipo: "dinero" },
+        { id: "fechaReajuste", et: "El nuevo canon rige desde", tipo: "fecha", ayuda: "Cuando se cumplen los doce meses con el mismo canon." },
+        { id: "ipc", et: "IPC del año anterior (%)", ph: "Ej.: 5,2", si: ["tipo", "vivienda"], ayuda: "Consúltelo en la página del DANE." },
+        { id: "clausulaReajuste", et: "Cláusula del contrato que fija el aumento", ph: "Ej.: quinta", req: 0, si: ["tipo", "local"] },
+        { id: "porcentaje", et: "Porcentaje del aumento (%)", ph: "Ej.: 5,2" }
+      ],
+      adicional: null
+    },
+    autorizacion_viaje_menor: {
+      nombre: "Autorización para viaje de menor de edad", corto: "Permiso de viaje de menor", precio: { auto: 20000, abogado: 60000 },
+      desc: "Permiso para que un menor de edad salga del país o viaje dentro de Colombia sin uno o sin ambos padres.",
+      consejos: ["Salida del país: firma el padre o la madre que no viaja; si el menor viaja con otra persona, firman los dos. Si el otro padre no aparece o no quiere firmar, el permiso lo da el defensor de familia o el juez de familia.", "El permiso para salir del país debe autenticarse en notaría o, si quien autoriza está en el exterior, en el consulado de Colombia. Lleve el registro civil de nacimiento del menor.", "Viaje dentro de Colombia: la empresa de transporte puede tener su propio formato; confírmelo antes de autenticar."],
+      sinAnexos: 1, firmaEt: ["Municipio donde se firma", "Fecha de firma"],
+      roles: [{ id: "autoriza1", et: "Quien autoriza", min: 1, max: 1, p: { contacto: 1 } },
+        { id: "autoriza2", et: "Segundo padre o madre que autoriza", min: 1, max: 1, p: { contacto: 1 }, si: ["firmanAmbos", "si"] }],
+      campos: [
+        { id: "calidad1", et: "Quien autoriza es", tipo: "select", op: [["padre", "Padre"], ["madre", "Madre"], ["representante legal", "Representante legal"]] },
+        { id: "firmanAmbos", et: "¿Firman los dos padres?", tipo: "radio", op: SI_NO, def: "no" },
+        { id: "calidad2", et: "El segundo que autoriza es", tipo: "select", op: [["madre", "Madre"], ["padre", "Padre"], ["representante legal", "Representante legal"]], si: ["firmanAmbos", "si"] },
+        { g: "El menor" },
+        { id: "menorNombre", et: "Nombre completo del menor", mayus: 1 },
+        { id: "menorSexo", et: "Es", tipo: "radio", op: [["m", "Niño"], ["f", "Niña"]], def: "m" },
+        { id: "menorDocTipo", et: "Documento del menor", tipo: "select", op: [["registro", "Registro civil de nacimiento"], ["ti", "Tarjeta de identidad"], ["pasaporte", "Pasaporte"]] },
+        { id: "menorDocNum", et: "Número del documento" },
+        { id: "menorNacimiento", et: "Fecha de nacimiento", tipo: "fecha" },
+        { g: "El viaje" },
+        { id: "opcion", et: "El viaje es", tipo: "radio", op: [["exterior", "Fuera de Colombia"], ["nacional", "Dentro de Colombia"]], def: "exterior" },
+        { id: "acompNombre", et: "Nombre de quien lo acompaña", mayus: 1 },
+        { id: "acompSexo", et: "Quien lo acompaña es", tipo: "radio", op: [["m", "Hombre"], ["f", "Mujer"]], def: "f" },
+        { id: "acompDocTipo", et: "Documento del acompañante", tipo: "select", op: [["CC", "Cédula de ciudadanía"], ["CE", "Cédula de extranjería"], ["PA", "Pasaporte"]] },
+        { id: "acompDocNum", et: "Número del documento del acompañante" },
+        { id: "acompCalidad", et: "Parentesco o relación con el menor", ph: "Ej.: madre, abuela, tío, docente" },
+        { id: "destino", et: "Ciudad y país de destino", ph: "Ej.: Madrid, España", si: ["opcion", "exterior"] },
+        { id: "proposito", et: "Propósito del viaje", tipo: "select", op: [["turismo", "Turismo"], ["visita", "Visita familiar"], ["estudio", "Estudio"], ["otro", "Otro"]], si: ["opcion", "exterior"] },
+        { id: "propositoOtro", et: "¿Cuál?", si: ["proposito", "otro"] },
+        { id: "fechaSalida", et: "Fecha de salida del país", tipo: "fecha", si: ["opcion", "exterior"] },
+        { id: "fechaRegreso", et: "Fecha de regreso al país", tipo: "fecha", si: ["opcion", "exterior"] },
+        { id: "municipioOrigen", et: "Municipio de salida", si: ["opcion", "nacional"] },
+        { id: "municipioDestino", et: "Municipio de destino", si: ["opcion", "nacional"] },
+        { id: "via", et: "Viaja por vía", tipo: "select", op: [["terrestre", "Terrestre"], ["aérea", "Aérea"]], si: ["opcion", "nacional"] },
+        { id: "fechaIda", et: "Fecha de ida", tipo: "fecha", si: ["opcion", "nacional"] },
+        { id: "fechaRegresoNac", et: "Fecha de regreso", tipo: "fecha", si: ["opcion", "nacional"] },
+        { id: "lugarPermanencia", et: "Dónde se quedará (dirección y teléfono)", si: ["opcion", "nacional"] }
+      ],
+      adicional: null
+    },
+    carta_renuncia: {
+      nombre: "Carta de renuncia", corto: "Carta de renuncia", precio: { auto: 20000, abogado: 60000 },
+      desc: "Carta del trabajador para renunciar a su cargo y pedir la liquidación y la certificación laboral.",
+      consejos: ["La firma el trabajador. Entregue dos copias y haga firmar una como recibida, con fecha.", "En contrato a término indefinido se acostumbra avisar con treinta (30) días de anticipación."],
+      sinAnexos: 1, firmaEt: ["Municipio de la carta", "Fecha de la carta"],
+      roles: [{ id: "trabajador", et: "Quien renuncia (trabajador)", min: 1, max: 1, p: { contacto: 1 } }],
+      campos: [
+        { g: "A quién va dirigida" },
+        { id: "destTrato", et: "Tratamiento", tipo: "select", op: [["Señores", "Señores (empresa)"], ["Señor", "Señor"], ["Señora", "Señora"]] },
+        { id: "empleadorNombre", et: "Nombre del empleador o de la empresa", mayus: 1 },
+        { id: "municipioEmpleador", et: "Municipio del empleador" },
+        { g: "El cargo" },
+        { id: "cargo", et: "Cargo", ph: "Ej.: auxiliar contable" },
+        { id: "fechaIngreso", et: "Fecha de ingreso", tipo: "fecha" },
+        { id: "ultimoDia", et: "Último día de trabajo", tipo: "fecha" },
+        { id: "motivo", et: "¿Decir que renuncia por motivos personales?", tipo: "radio", op: SI_NO, def: "no" }
+      ],
+      adicional: null
+    },
+    certificacion_laboral: {
+      nombre: "Certificación laboral", corto: "Certificación laboral", precio: { auto: 20000, abogado: 60000 },
+      desc: "Certificado del empleador con el tiempo de servicio, el cargo y el salario del trabajador, activo o retirado.",
+      consejos: ["La firma el empleador o el representante legal de la empresa.", "Certifique solo lo que sea cierto y conste en el contrato y en los pagos: este documento prueba la relación laboral contra quien lo firma."],
+      sinAnexos: 1, firmaEt: ["Municipio donde se expide", "Fecha de expedición"],
+      roles: [{ id: "empleador", et: "Empleador", min: 1, max: 1, p: { juridica: 1, contacto: 1 } }],
+      campos: [
+        { g: "El trabajador" },
+        { id: "trabajadorNombre", et: "Nombre completo del trabajador", mayus: 1 },
+        { id: "trabajadorCedula", et: "Cédula del trabajador" },
+        { id: "estado", et: "El trabajador", tipo: "radio", op: [["activo", "Trabaja actualmente"], ["retirado", "Ya se retiró"]], def: "activo" },
+        { id: "fechaIngreso", et: "Fecha de ingreso", tipo: "fecha" },
+        { id: "fechaRetiro", et: "Fecha de retiro", tipo: "fecha", si: ["estado", "retirado"] },
+        { id: "cargo", et: "Cargo", ph: "Ej.: auxiliar contable" },
+        { id: "tipoContrato", et: "Contrato de trabajo", tipo: "select", op: [["indefinido", "A término indefinido"], ["fijo", "A término fijo"], ["obra", "Por obra o labor"]] },
+        { id: "salario", et: "Salario mensual (el último, si ya se retiró)", tipo: "dinero" },
+        { id: "funciones", et: "Funciones principales (opcional)", tipo: "lista", req: 0, ayuda: "Una por línea." },
+        { id: "recomendacion", et: "¿Incluir una recomendación?", tipo: "radio", op: SI_NO, def: "no" },
+        { id: "telInfo", et: "Teléfono para verificar la información" }
+      ],
+      adicional: null
     }
   };
 
@@ -778,6 +917,7 @@
       [].forEach.call(c.querySelectorAll("input,select,textarea"), function (x) { x.disabled = !ver; });
     });
     [].forEach.call(ambito.querySelectorAll("[data-rol]"), function (r) { r.hidden = !condicionCumple(r._si, ambito); });
+    [].forEach.call(ambito.querySelectorAll("[data-grupo]"), function (g) { g.hidden = !condicionCumple(g._si, ambito); if (g._rej) g._rej.hidden = g.hidden; });
   }
 
   // ---------- Personas ----------
@@ -848,9 +988,12 @@
     var sec2 = el("section", { class: "bloque" }), rej = null;
     d.campos.forEach(function (c) {
       if (c.g) {
-        sec2.appendChild(el("h3", { class: "bloque-titulo", texto: c.g }));
+        var h = el("h3", { class: "bloque-titulo", texto: c.g });
+        sec2.appendChild(h);
         if (c.ayuda) sec2.appendChild(el("p", { class: "ayuda", texto: c.ayuda }));
-        rej = el("div", { class: "rejilla" }); sec2.appendChild(rej); return;
+        rej = el("div", { class: "rejilla" }); sec2.appendChild(rej);
+        if (c.si) { h.setAttribute("data-grupo", ""); h._si = c.si; h._rej = rej; }
+        return;
       }
       if (!rej) { rej = el("div", { class: "rejilla" }); sec2.appendChild(rej); }
       rej.appendChild(campo(c));
@@ -1002,10 +1145,11 @@
 
   // ---------- Catálogo ----------
   var GRUPOS = [
-    ["Arrendamiento", ["arriendo_vivienda", "arriendo_local", "acta_entrega_inmueble", "cuenta_cobro_canones", "aviso_arrendatario"]],
+    ["Arrendamiento", ["arriendo_vivienda", "arriendo_local", "acta_entrega_inmueble", "aviso_aumento_canon", "cuenta_cobro_canones", "aviso_arrendatario"]],
     ["Inmuebles", ["promesa", "poder_inmueble_venta"]],
     ["Vehículos", ["vehiculo", "acta_entrega_vehiculo", "poder_vehiculo"]],
-    ["Contratos y deudas", ["compraventa_muebles", "prestacion_servicios", "comodato", "prestamo_mutuo", "recibo_abono"]],
+    ["Contratos y deudas", ["compraventa_muebles", "prestacion_servicios", "comodato", "prestamo_mutuo", "pagare", "recibo_abono"]],
+    ["Familia y trabajo", ["autorizacion_viaje_menor", "carta_renuncia", "certificacion_laboral"]],
     ["Poderes y trámites", ["poder_tramites"]]
   ];
   function catalogo() {
