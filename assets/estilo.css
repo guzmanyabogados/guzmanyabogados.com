@@ -249,3 +249,71 @@ p { margin: 0; }
 @media (max-width: 700px) { .tarjetas { grid-template-columns: 1fr; } .otros ul { columns: 1; } }
 .tarjeta .precio { font-variant-numeric: lining-nums; font-family: var(--display); font-size: 1.6rem; font-weight: 700; color: var(--oro-claro); line-height: 1.1; flex: 0; }
 .tarjeta .precio span { display: block; font-family: var(--texto); font-size: .82rem; font-weight: 400; color: var(--niebla); margin-top: .2rem; }
+.aviso { margin-top: 1.8rem; padding: 1rem 1.2rem; border-left: 3px solid var(--oro); background: rgba(10, 22, 40, .45); font-size: .95rem; color: var(--niebla); }
+.aviso b { color: var(--oro-claro); font-weight: 700; }
+.tarjeta .aviso-corto { font-size: .82rem; color: var(--niebla); opacity: .85; flex: 0; font-style: italic; }
+.instalar-ios { margin-top: .9rem; font-size: .92rem; color: var(--oro-claro); }
+button.boton { font: inherit; cursor: pointer; }
+
+/* ===== Documentos en línea ===== */
+.app-docs { min-height: 70vh; }
+.titulo-app { font-size: clamp(2.2rem, 4.4vw, 3.4rem); color: var(--marfil); }
+.app-docs .tarjeta .boton { cursor: pointer; }
+.despues { margin-top: 2.4rem; padding: 1.4rem 1.5rem; border: 1px solid var(--filete); }
+.despues .nota-titulo { font-family: var(--display); font-size: 1.35rem; color: var(--oro-claro); margin: 0 0 .4rem; }
+.despues p { margin: 0; color: var(--niebla); }
+#formulario, #pago { max-width: 62rem; }
+#formulario > h2, #pago > h2 { font-size: clamp(2rem, 3.6vw, 2.9rem); color: var(--marfil); margin: .6rem 0 1rem; }
+.consejos { margin: 0 0 2rem; padding: 1rem 1.2rem 1rem 2.4rem; border-left: 3px solid var(--oro); background: rgba(10, 22, 40, .45); color: var(--niebla); }
+.consejos li { margin: .25rem 0; }
+.bloque { margin: 0 0 2.4rem; padding-top: .4rem; }
+.bloque-titulo { font-family: var(--display); font-size: 1.6rem; color: var(--oro-claro); margin: 1.6rem 0 .9rem; padding-bottom: .4rem; border-bottom: 1px solid var(--filete-suave); }
+.rejilla { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem 1.2rem; }
+.campo { display: grid; gap: .35rem; align-content: start; }
+.campo.ancho { grid-column: 1 / -1; }
+.campo[hidden] { display: none; }
+.campo label, .campo .etiqueta { font-size: .95rem; color: var(--marfil); font-weight: 600; margin: 0; }
+.opcional { font-weight: 400; color: var(--niebla); font-size: .85rem; }
+.campo input[type=text], .campo input[type=number], .campo input[type=date], .campo input[type=time], .campo input:not([type]), .campo select, .campo textarea {
+  width: 100%; box-sizing: border-box; font: inherit; font-size: 1rem; color: var(--marfil); background: rgba(10, 22, 40, .7);
+  border: 1px solid var(--filete); border-radius: 2px; padding: .7rem .8rem; min-height: 46px; }
+.campo input[type=date], .campo input[type=time] { color-scheme: dark; }
+.campo select option { color: #0A1628; }
+.campo input:focus, .campo select:focus, .campo textarea:focus { outline: 2px solid var(--oro); outline-offset: 1px; border-color: var(--oro); }
+.campo textarea { resize: vertical; }
+.campo input[type=file] { color: var(--niebla); }
+.campo.falta input, .campo.falta select, .campo.falta textarea { border-color: #E57373; box-shadow: 0 0 0 1px #E57373; }
+.campo.falta label, .campo.falta .etiqueta { color: #F2A3A3; }
+.ayuda { font-size: .85rem; color: var(--niebla); margin: 0; }
+.opciones { display: flex; flex-wrap: wrap; gap: .5rem .8rem; }
+.opcion { display: inline-flex; align-items: center; gap: .45rem; padding: .45rem .8rem; border: 1px solid var(--filete); border-radius: 2px; cursor: pointer; color: var(--marfil); font-weight: 400 !important; min-height: 44px; box-sizing: border-box; }
+.opcion input { accent-color: var(--oro); width: 1.05rem; height: 1.05rem; margin: 0; }
+.opcion:has(input:checked) { border-color: var(--oro); background: rgba(201, 168, 92, .12); }
+.rol { margin: 0 0 1.6rem; }
+.rol[hidden] { display: none; }
+.rol-cabeza h3 { font-size: 1.05rem; font-family: var(--texto); font-weight: 700; color: var(--marfil); margin: 1rem 0 .6rem; letter-spacing: .02em; }
+.persona { border: 1px solid var(--filete-suave); padding: 1rem 1.1rem 1.1rem; margin: 0 0 .9rem; position: relative; background: rgba(10, 22, 40, .35); }
+.persona legend { padding: 0 .4rem; color: var(--oro); font-size: .78rem; letter-spacing: .18em; text-transform: uppercase; font-weight: 700; }
+.quitar { position: absolute; top: .4rem; right: .6rem; background: none; border: 0; color: var(--oro-claro); text-decoration: underline; cursor: pointer; font: inherit; font-size: .88rem; min-height: 40px; }
+.boton.pequeno { padding: .55rem 1rem; font-size: .9rem; cursor: pointer; }
+.niveles { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.nivel { display: grid; grid-template-columns: auto 1fr; gap: .2rem .7rem; padding: 1rem 1.1rem; border: 1px solid var(--filete); cursor: pointer; }
+.nivel input { grid-row: 1 / 3; margin-top: .3rem; accent-color: var(--oro); width: 1.1rem; height: 1.1rem; }
+.nivel b { color: var(--marfil); font-size: 1.02rem; }
+.nivel span { color: var(--niebla); font-size: .9rem; }
+.nivel:has(input:checked) { border-color: var(--oro); background: rgba(201, 168, 92, .12); }
+.acepto { display: grid; grid-template-columns: auto 1fr; gap: .7rem; margin: 1.1rem 0 0; color: var(--niebla); font-size: .95rem; cursor: pointer; }
+.acepto input { width: 1.15rem; height: 1.15rem; margin-top: .2rem; accent-color: var(--oro); }
+.acepto b { color: var(--marfil); }
+.acepto a { color: var(--oro-claro); }
+.error { margin: 1.2rem 0 0; padding: .8rem 1rem; border-left: 3px solid #E57373; background: rgba(229, 115, 115, .12); color: #F6C2C2; }
+.app-docs .acciones { display: flex; flex-wrap: wrap; gap: .8rem; margin-top: 1.6rem; }
+#pago p { color: var(--niebla); font-size: 1.05rem; }
+#pago b { color: var(--marfil); }
+@media (max-width: 700px) { .rejilla, .niveles { grid-template-columns: 1fr; } }
+.doc-manual { display: grid; gap: .5rem; padding: 1rem 1.2rem; border: 1px solid var(--filete-suave); }
+.doc-manual[hidden] { display: none; }
+.doc-manual label { color: var(--niebla); font-size: .95rem; }
+.doc-manual span { display: flex; flex-wrap: wrap; gap: .6rem; }
+.doc-manual input { flex: 1 1 14rem; font: inherit; color: var(--marfil); background: rgba(10, 22, 40, .7); border: 1px solid var(--filete); padding: .65rem .8rem; min-height: 46px; text-transform: uppercase; }
+#acciones-pago { display: flex; flex-wrap: wrap; gap: .8rem; }

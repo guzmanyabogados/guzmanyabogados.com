@@ -6,6 +6,9 @@
 <meta name="theme-color" content="#0A1628">
 <link rel="icon" type="image/png" href="/assets/favicon.png">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Guzmán Abogados">
 <link rel="stylesheet" href="/assets/estilo.css">
 <title>Confirmar por WhatsApp · Guzmán y Abogados</title>
 <meta name="robots" content="noindex">
@@ -20,6 +23,7 @@
     <nav class="menu" aria-label="Secciones">
       <a href="/#asuntos">Asuntos</a>
       <a href="/#tramites">Trámites en línea</a>
+      <a href="/documentos.html">Documentos</a>
       <a href="/#cita">Cita</a>
       <a href="/#oficina">Oficina</a>
       <a class="boton boton-oro" href="https://wa.me/573205639603?text=Hola%2C%20quisiera%20agendar%20una%20cita%20con%20el%20abogado." rel="noopener">WhatsApp</a>
@@ -32,7 +36,9 @@
     <p class="ante" id="estado">Pago en línea</p>
     <h1 id="titulo">Confírmenos su pago por WhatsApp</h1>
     <p id="texto">Toque el botón para escribirnos por WhatsApp. Ya sabremos que viene del pago y le respondemos de inmediato en el horario de atención.</p>
-    <p class="acciones"><a class="boton boton-oro" id="whatsapp" href="https://wa.me/573205639603?text=Hola%2C%20acabo%20de%20hacer%20un%20pago%20a%20Guzm%C3%A1n%20y%20Abogados." rel="noopener">Confirmar por WhatsApp</a><a class="boton boton-linea" href="/">Ir al inicio</a></p>
+    <p class="acciones" id="acciones-pago"><a class="boton boton-oro" id="whatsapp" href="https://wa.me/573205639603?text=Hola%2C%20acabo%20de%20hacer%20un%20pago%20a%20Guzm%C3%A1n%20y%20Abogados." rel="noopener">Confirmar por WhatsApp</a><a class="boton boton-linea" href="/">Ir al inicio</a></p>
+    <form class="doc-manual" id="doc-manual" hidden><label for="doc-codigo">¿Pagó un contrato, poder o petición en línea? Escriba el código de su documento:</label><span><input id="doc-codigo" placeholder="GA-000000-XXXX" autocomplete="off"><button class="boton boton-linea" type="submit">Recibir mi documento</button></span></form>
+    <p class="aviso"><b>Aviso.</b> Somos el puente para que usted haga el trámite: no garantizamos que el trámite sea viable ni que el documento le sirva para lo que busca.</p>
   </div>
 </main>
 <footer class="pie">
@@ -51,15 +57,63 @@
     <div class="pie-legal">
       <p>GUZMAN Y ABOGADOS CG · NIT 1036672933-1 · Calle 52 # 49-66, Itagüí, Antioquia</p>
       <p>La información de esta página es general y no constituye asesoría jurídica sobre un caso concreto.</p>
+      <p>En los trámites y documentos en línea actuamos como puente: no garantizamos la viabilidad del trámite ni que el documento sirva para el fin que busca el usuario.</p>
     </div>
   </div>
 </footer>
+<script src="/assets/config.js"></script>
 <script>
 (function () {
   var id = new URLSearchParams(location.search).get("id");
-  if (!id || !/^[0-9A-Za-z-]+$/.test(id)) return;
   var boton = document.getElementById("whatsapp");
   var estado = document.getElementById("estado"), titulo = document.getElementById("titulo"), texto = document.getElementById("texto");
+  var cfg = window.GA_CONFIG || {}, doc = null;
+  try { doc = JSON.parse(localStorage.getItem("ga_doc") || "null"); } catch (e) {}
+  if (doc && Date.now() - doc.t > 3 * 24 * 3600 * 1000) doc = null;
+  var acciones = document.getElementById("acciones-pago"), manual = document.getElementById("doc-manual");
+  function enlace(clase, href, txt) { var a = document.createElement("a"); a.className = "boton " + clase; a.href = href; a.textContent = txt; a.rel = "noopener"; return a; }
+  function emitir(codigo) {
+    estado.textContent = "Documento en línea";
+    titulo.textContent = "Estamos preparando su documento";
+    texto.textContent = "Esto toma unos segundos. No cierre esta página.";
+    boton.hidden = true; manual.hidden = true;
+    fetch(cfg.api, { method: "POST", body: JSON.stringify({ accion: "emitir", codigo: codigo, transaccion: id }) })
+      .then(function (r) { return r.json(); })
+      .then(function (r) {
+        boton.hidden = false;
+        boton.href = "https://wa.me/573205639603?text=" + encodeURIComponent("Hola, pagué el documento " + codigo + ". Referencia de pago: " + id + ".");
+        boton.textContent = "Escribir por WhatsApp";
+        if (!r.ok) { estado.textContent = "Necesitamos revisar"; titulo.textContent = "No pudimos entregar el documento"; texto.textContent = r.error || "Escríbanos por WhatsApp con su código " + codigo + "."; return; }
+        try { localStorage.removeItem("ga_doc"); } catch (e) {}
+        if (r.estado === "listo") {
+          estado.textContent = "Pago aprobado";
+          titulo.textContent = "Su documento está listo";
+          texto.textContent = "Descárguelo aquí. También se lo enviamos a " + r.correo + ". Léalo completo antes de firmarlo. Si quiere firmarlo o autenticarlo en línea, sin ir a la notaría:";
+          var bytes = atob(r.pdf), arr = new Uint8Array(bytes.length);
+          for (var i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+          var url = URL.createObjectURL(new Blob([arr], { type: "application/pdf" }));
+          var d = enlace("boton-oro", url, "Descargar mi documento"); d.setAttribute("download", r.nombreArchivo || "documento.pdf");
+          acciones.insertBefore(d, acciones.firstChild);
+          acciones.appendChild(enlace("boton-linea", "https://checkout.wompi.co/l/rJvdYm", "Firma digital · $19.000 por firma"));
+          acciones.appendChild(enlace("boton-linea", "https://checkout.wompi.co/l/WKMW3L", "Autenticación · $49.000 por firma"));
+        } else if (r.estado === "revision") {
+          estado.textContent = "Pago aprobado";
+          titulo.textContent = "El abogado está revisando su documento";
+          texto.textContent = "Se lo enviamos en PDF a " + r.correo + " a más tardar el siguiente día hábil.";
+        } else if (r.estado === "pendiente") {
+          estado.textContent = "Pago en proceso";
+          titulo.textContent = "Su pago se está procesando";
+          texto.textContent = "Apenas se apruebe, le enviamos el documento a " + r.correo + ". No tiene que hacer nada más.";
+        }
+      })
+      .catch(function () { boton.hidden = false; titulo.textContent = "No pudimos conectarnos"; texto.textContent = "Su pago quedó registrado. Escríbanos por WhatsApp con su código " + codigo + " y se lo enviamos."; });
+  }
+  if (!id || !/^[0-9A-Za-z-]+$/.test(id)) return;
+  if (doc && cfg.api) { emitir(doc.codigo); return; }
+  manual.hidden = !cfg.api;
+  document.getElementById("doc-manual-form").addEventListener("submit", function (e) {
+    e.preventDefault(); var c = document.getElementById("doc-codigo").value.trim().toUpperCase(); if (c) emitir(c);
+  });
   var mensaje = function (que) {
     boton.href = "https://wa.me/573205639603?text=" + encodeURIComponent("Hola, " + que + " Referencia de pago: " + id + ".");
   };

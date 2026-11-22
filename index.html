@@ -18,6 +18,11 @@
 <meta name="theme-color" content="#0A1628">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Guzmán Abogados">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preload" href="assets/fonts/cormorant-garamond-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/estilo.css">
 <script type="application/ld+json">
@@ -66,6 +71,7 @@
     <nav class="menu" aria-label="Secciones">
       <a href="#asuntos">Asuntos</a>
       <a href="#tramites">Trámites en línea</a>
+      <a href="documentos.html">Documentos</a>
       <a href="#cita">Cita</a>
       <a href="#oficina">Oficina</a>
       <a class="boton boton-oro" href="https://wa.me/573205639603?text=Hola%2C%20quisiera%20agendar%20una%20cita%20con%20el%20abogado." rel="noopener">WhatsApp</a>
@@ -85,8 +91,10 @@
             <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M12.04 2a9.9 9.9 0 0 0-8.5 15l-1.4 5 5.1-1.34A9.9 9.9 0 1 0 12.04 2Zm0 18.1a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.03.8.8-2.95-.2-.31a8.22 8.22 0 1 1 6.9 3.79Zm4.5-6.15c-.25-.12-1.47-.72-1.7-.8-.22-.09-.39-.13-.55.12-.17.25-.64.8-.78.96-.14.17-.29.19-.54.06a6.7 6.7 0 0 1-3.32-2.9c-.25-.43.25-.4.71-1.33.08-.17.04-.31-.02-.43l-.75-1.82c-.2-.48-.4-.41-.55-.42h-.47a.9.9 0 0 0-.65.3 2.74 2.74 0 0 0-.86 2.04 4.77 4.77 0 0 0 1 2.53 10.9 10.9 0 0 0 4.18 3.7c1.56.67 2.17.73 2.95.61.47-.07 1.47-.6 1.68-1.18.2-.58.2-1.08.14-1.18-.06-.1-.23-.16-.48-.29Z"/></svg>
             Agendar por WhatsApp
           </a>
-          <a class="boton boton-linea" href="#oficina">Dirección y horario</a>
+          <a class="boton boton-linea" href="documentos.html">Contratos y poderes en línea</a>
+          <button class="boton boton-linea" id="instalar-app" type="button" hidden>Instalar la app</button>
         </div>
+        <p class="instalar-ios" id="instalar-ios" hidden>En iPhone: toque el botón Compartir y luego «Agregar a inicio».</p>
       </div>
 
       <aside class="ficha" aria-label="Datos de la oficina">
@@ -197,12 +205,14 @@
             <h3>Autenticación notarial digital</h3>
             <p class="precio">$49.000 <span>por cada persona que firma</span></p>
             <p>Sin ir a la notaría. Usted imprime las copias que necesite sin pagar por cada copia.</p>
+            <p class="aviso-corto">La autenticación y la firma dan fe de quién firma; el contenido del documento es responsabilidad de quien lo firma.</p>
             <div class="acciones-tarjeta"><a class="boton boton-oro" href="https://checkout.wompi.co/l/WKMW3L" rel="noopener">Pagar en línea</a><a class="enlace-wa" href="https://wa.me/573205639603?text=Hola%2C%20quisiera%20pedir%3A%20Autenticaci%C3%B3n%20notarial%20digital." rel="noopener">Preguntar por WhatsApp</a></div>
           </li>
           <li class="tarjeta">
             <h3>Firma digital de documentos</h3>
             <p class="precio">$19.000 <span>por cada persona que firma</span></p>
             <p>Envíenos el documento en PDF y se lo devolvemos firmado.</p>
+            <p class="aviso-corto">La autenticación y la firma dan fe de quién firma; el contenido del documento es responsabilidad de quien lo firma.</p>
             <div class="acciones-tarjeta"><a class="boton boton-oro" href="https://checkout.wompi.co/l/rJvdYm" rel="noopener">Pagar en línea</a><a class="enlace-wa" href="https://wa.me/573205639603?text=Hola%2C%20quisiera%20pedir%3A%20Firma%20digital%20de%20documentos." rel="noopener">Preguntar por WhatsApp</a></div>
           </li>
           <li class="tarjeta">
@@ -224,7 +234,7 @@
           <li>Consulta de procesos judiciales</li>
         </ul>
       </div>
-      <p class="nota">Algunos municipios no expiden certificados en línea; en ese caso le explicamos cómo pedirlos. Los pagos se hacen en la plataforma segura de Wompi.</p>
+      <p class="aviso"><b>Aviso.</b> Somos el puente para que usted haga el trámite: no garantizamos que el trámite sea viable ni que el documento le sirva para lo que busca. Los datos que nos da y lo que usted agregue son de su responsabilidad. Algunos municipios no expiden certificados en línea; en ese caso le explicamos cómo pedirlos. Los pagos se hacen en la plataforma segura de Wompi.</p>
     </div>
   </section>
 
@@ -297,6 +307,7 @@
     <div class="pie-legal">
       <p>GUZMAN Y ABOGADOS CG · NIT 1036672933-1 · Calle 52 # 49-66, Itagüí, Antioquia</p>
       <p>La información de esta página es general y no constituye asesoría jurídica sobre un caso concreto.</p>
+      <p>En los trámites y documentos en línea actuamos como puente: no garantizamos la viabilidad del trámite ni que el documento sirva para el fin que busca el usuario.</p>
     </div>
   </div>
 </footer>
@@ -305,5 +316,6 @@
   <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M12.04 2a9.9 9.9 0 0 0-8.5 15l-1.4 5 5.1-1.34A9.9 9.9 0 1 0 12.04 2Zm0 18.1a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.03.8.8-2.95-.2-.31a8.22 8.22 0 1 1 6.9 3.79Zm4.5-6.15c-.25-.12-1.47-.72-1.7-.8-.22-.09-.39-.13-.55.12-.17.25-.64.8-.78.96-.14.17-.29.19-.54.06a6.7 6.7 0 0 1-3.32-2.9c-.25-.43.25-.4.71-1.33.08-.17.04-.31-.02-.43l-.75-1.82c-.2-.48-.4-.41-.55-.42h-.47a.9.9 0 0 0-.65.3 2.74 2.74 0 0 0-.86 2.04 4.77 4.77 0 0 0 1 2.53 10.9 10.9 0 0 0 4.18 3.7c1.56.67 2.17.73 2.95.61.47-.07 1.47-.6 1.68-1.18.2-.58.2-1.08.14-1.18-.06-.1-.23-.16-.48-.29Z"/></svg>
   <span>WhatsApp</span>
 </a>
+<script src="assets/app.js" defer></script>
 </body>
 </html>
