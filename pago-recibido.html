@@ -9,7 +9,7 @@
 <link rel="manifest" href="/manifest.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Guzmán Abogados">
-<link rel="stylesheet" href="/assets/estilo.css?v=20261122o">
+<link rel="stylesheet" href="/assets/estilo.css?v=20261123a">
 <title>Confirmar por WhatsApp · Guzmán y Abogados</title>
 <meta name="robots" content="noindex">
 </head>
@@ -62,7 +62,7 @@
     </div>
   </div>
 </footer>
-<script src="/assets/config.js?v=20261122o"></script>
+<script src="/assets/config.js?v=20261123a"></script>
 <script>
 (function () {
   var id = new URLSearchParams(location.search).get("id");
@@ -146,7 +146,7 @@
     .then(function (j) {
       var d = j && j.data; if (!d) return;
       var s = d.status, monto = d.amount_in_cents;
-      var servicios = {6000000: "consulta", 2900000: "tradicion", 3200000: "tradicion", 6900000: "ficha", 9000000: "avaluo", 4900000: "firma", 1900000: "firma"};
+      var servicios = {6000000: "consulta", 2900000: "tradicion", 3200000: "tradicion", 6900000: "ficha", 7500000: "ficha", 9000000: "avaluo", 4900000: "firma", 1900000: "firma"};
       var link = d.payment_link_id || "";
       var servicio = porLink[link] || (linksDocs.indexOf(link) >= 0 ? "documento" : "") || servicios[monto] || (monto % 4900000 === 0 || monto % 1900000 === 0 ? "firma" : "");
       if (s === "APPROVED") {

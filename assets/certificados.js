@@ -5,7 +5,7 @@
   var ORIP = window.GA_ORIP || [], MUN = window.GA_MUNICIPIOS || [];
   var SERVICIOS = {
     tradicion: { nombre: "Certificado de tradición y libertad", precio: 29000, pago: "https://checkout.wompi.co/l/tnTjo2" },
-    ficha: { nombre: "Ficha predial", precio: 69000, pago: "https://checkout.wompi.co/l/D2PQdn" },
+    ficha: { nombre: "Ficha predial", precio: 75000, pago: "" },
     avaluo: { nombre: "Certificado de avalúo catastral", precio: 90000, pago: "https://checkout.wompi.co/l/B6tFxu" }
   };
   var raiz = document.getElementById("app-cert");
@@ -206,9 +206,14 @@
       } else if (e === "DISPONIBLE") {
         ante.textContent = "Paso 3 de 3 · Pago";
         titulo.textContent = "Verificado: ya puede pagar";
-        p("Revisamos y el certificado se puede expedir. Pague " + pesos(s.precio) + " en la plataforma segura de Wompi y se lo enviamos en PDF a " + r.correo + ".");
-        if (r.referencia) p("Si Wompi le pide la matrícula, escriba: " + r.referencia);
-        acciones.appendChild(el("a", { class: "boton boton-oro", href: s.pago, rel: "noopener", onclick: function () { guardar(codigo); }, texto: "Pagar " + pesos(s.precio) }));
+        if (s.pago) {
+          p("Revisamos y el certificado se puede expedir. Pague " + pesos(s.precio) + " en la plataforma segura de Wompi y se lo enviamos en PDF a " + r.correo + ".");
+          if (r.referencia) p("Si Wompi le pide la matrícula, escriba: " + r.referencia);
+          acciones.appendChild(el("a", { class: "boton boton-oro", href: s.pago, rel: "noopener", onclick: function () { guardar(codigo); }, texto: "Pagar " + pesos(s.precio) }));
+        } else {
+          p("Revisamos y el certificado se puede expedir. Para pagar " + pesos(s.precio) + ", escríbanos por WhatsApp y le enviamos el enlace de pago. Después se lo enviamos en PDF a " + r.correo + ".");
+          acciones.appendChild(el("a", { class: "boton boton-oro", href: wa("Hola, quiero pagar la solicitud " + codigo + " (" + s.nombre + ref + ") por " + pesos(s.precio) + "."), rel: "noopener", texto: "Pagar por WhatsApp" }));
+        }
         acciones.appendChild(el("a", { class: "boton boton-linea", href: wa("Hola, tengo una pregunta sobre la solicitud " + codigo + "."), texto: "Preguntar por WhatsApp" }));
       } else if (e === "NO SE PUEDE EXPEDIR") {
         titulo.textContent = "No se puede expedir en línea";
