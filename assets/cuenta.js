@@ -51,7 +51,7 @@
       acciones.appendChild(reenviar);
     } else {
       acciones.appendChild(el("a", { class: "boton boton-oro", href: "/documentos.html", texto: "Hacer un documento en línea" }));
-      acciones.appendChild(el("a", { class: "boton boton-linea", href: "/#tramites", texto: "Pedir un certificado" }));
+      if (!(function () { try { return sessionStorage.getItem("ga_play") === "1"; } catch (e) { return false; } })()) acciones.appendChild(el("a", { class: "boton boton-linea", href: "/#tramites", texto: "Pedir un certificado" }));
     }
     caja.appendChild(acciones);
     caja.appendChild(salida);

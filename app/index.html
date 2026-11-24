@@ -9,7 +9,7 @@
 <link rel="manifest" href="/manifest.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Guzmán Abogados">
-<link rel="stylesheet" href="/assets/estilo.css?v=20261124b">
+<link rel="stylesheet" href="/assets/estilo.css?v=20261124c">
 <title>App de Guzmán y Abogados · Itagüí</title>
 <meta name="description" content="Instale gratis la app de Guzmán y Abogados: documentos, certificados, firmas y citas con el abogado desde su celular.">
 <meta property="og:title" content="App de Guzmán y Abogados">
@@ -26,7 +26,7 @@
     </a>
     <nav class="menu" aria-label="Secciones">
       <a href="/#asuntos">Asuntos</a>
-      <a href="/#tramites">Trámites en línea</a>
+      <a href="/#tramites" data-no-app>Trámites en línea</a>
       <a href="/documentos.html">Documentos</a>
       <a href="/#cita">Cita</a>
       <a href="/#oficina">Oficina</a>
@@ -52,8 +52,8 @@
     <div class="titulo-seccion"><h2 id="t-necesita">¿Qué necesita hoy?</h2></div>
     <ul class="tarjetas" style="grid-template-columns:repeat(auto-fit,minmax(15rem,1fr))">
       <li class="tarjeta"><h3>Documentos en línea</h3><p>Contratos de arriendo, promesas, pagarés, poderes y más, listos en minutos.</p><div class="acciones-tarjeta"><a class="boton boton-oro" href="/documentos.html">Hacer mi documento</a></div></li>
-      <li class="tarjeta"><h3>Certificados</h3><p>Certificado de tradición, ficha predial y avalúo catastral en PDF a su correo.</p><div class="acciones-tarjeta"><a class="boton boton-oro" href="/certificados.html">Pedir certificado</a></div></li>
-      <li class="tarjeta"><h3>Firma digital</h3><p>Envíenos el PDF y se lo devolvemos firmado, sin imprimirlo.</p><div class="acciones-tarjeta"><a class="boton boton-oro" href="/#tramites">Ver opciones</a></div></li>
+      <li class="tarjeta" data-no-app><h3>Certificados</h3><p>Certificado de tradición, ficha predial y avalúo catastral en PDF a su correo.</p><div class="acciones-tarjeta"><a class="boton boton-oro" href="/certificados.html">Pedir certificado</a></div></li>
+      <li class="tarjeta" data-no-app><h3>Firma digital</h3><p>Envíenos el PDF y se lo devolvemos firmado, sin imprimirlo.</p><div class="acciones-tarjeta"><a class="boton boton-oro" href="/#tramites">Ver opciones</a></div></li>
       <li class="tarjeta"><h3>Cita con el abogado</h3><p>Escríbanos y le asignamos la cita.</p><div class="acciones-tarjeta"><a class="boton boton-oro" href="https://wa.me/573205639603?text=Hola%2C%20quisiera%20agendar%20una%20cita%20con%20el%20abogado." rel="noopener">Escribir por WhatsApp</a></div></li>
     </ul>
     <p style="margin-top:2rem">¿Ya nos visitó? <a href="/opinion/">Califíquenos en Google</a>: ayuda a otras personas a encontrarnos.</p>
@@ -89,6 +89,6 @@
 })();
 </script>
 <script src="/assets/app.js?v=20261124a" defer></script>
-<script src="/assets/sesion.js?v=20261124b" defer></script>
+<script src="/assets/sesion.js?v=20261124c" defer></script>
 </body>
 </html>

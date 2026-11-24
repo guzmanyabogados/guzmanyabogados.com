@@ -1181,7 +1181,13 @@
     p.appendChild(el("p", { html: d.nombre + " · código <b>" + r.codigo + "</b> · valor <b>" + (r.gratis ? "sin costo" : pesos(r.precio)) + "</b>" }));
     if (r.beneficio) p.appendChild(el("p", { class: "aviso-datos", html: "<b>Beneficio aplicado:</b> " + r.beneficio.charAt(0).toLowerCase() + r.beneficio.slice(1) + "." + (r.nivel === "abogado" ? " El abogado lo revisa y se lo enviamos a más tardar el siguiente día hábil." : "") }));
     var res = resumenDatos(); if (res) { if (r.gratis) res.querySelector("summary").textContent = "Revise sus datos"; p.appendChild(res); }
-    p.appendChild(el("p", { class: "aviso-datos", html: r.gratis ? "<b>Anote su código: " + r.codigo + ".</b> Revise sus datos y oprima «Recibir mi documento»: el PDF se descarga y también le llega al correo." : "<b>Anote su código: " + r.codigo + ".</b> Después de pagar, Wompi lo devuelve a nuestra página y el PDF se descarga solo; también le llega al correo. Si la página no se abre sola, el código le sirve para recibir su documento." }));
+    if (!(window.gaPlay && !r.gratis)) p.appendChild(el("p", { class: "aviso-datos", html: r.gratis ? "<b>Anote su código: " + r.codigo + ".</b> Revise sus datos y oprima «Recibir mi documento»: el PDF se descarga y también le llega al correo." : "<b>Anote su código: " + r.codigo + ".</b> Después de pagar, Wompi lo devuelve a nuestra página y el PDF se descarga solo; también le llega al correo. Si la página no se abre sola, el código le sirve para recibir su documento." }));
+    if (window.gaPlay && !r.gratis) {
+      p.appendChild(el("p", { class: "aviso-datos", html: "<b>Muy pronto podrá pagar sus documentos aquí mismo, con Google Play.</b> Su documento quedó guardado con el código " + r.codigo + "." }));
+      p.appendChild(el("div", { class: "acciones" }, [el("button", { type: "button", class: "boton boton-linea", texto: "Corregir datos", onclick: function () { p.hidden = true; $("#formulario").hidden = false; } })]));
+      $("#formulario").hidden = true; p.hidden = false; p.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
     p.appendChild(el("div", { class: "acciones" }, [
       r.gratis ? el("a", { class: "boton boton-oro", href: enlace, texto: "Recibir mi documento" }) : enlace ? el("a", { class: "boton boton-oro", href: enlace, texto: "Pagar " + pesos(r.precio) }) : el("a", { class: "boton boton-oro", href: WA + encodeURIComponent("Hola, quiero pagar mi documento " + r.codigo + "."), texto: "Pagar por WhatsApp" }),
       el("button", { type: "button", class: "boton boton-linea", texto: "Corregir datos", onclick: function () { p.hidden = true; $("#formulario").hidden = false; } })

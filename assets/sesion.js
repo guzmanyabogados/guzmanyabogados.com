@@ -2,6 +2,15 @@
 // Cambia el botón del menú: «Iniciar sesión / Registrarse» sin sesión y «Mi cuenta» con sesión.
 (function () {
   "use strict";
+  // App de Google Play (TWA): Chrome la abre con referrer android-app://com.guzmanyabogados.app. Se recuerda en la sesión.
+  // Dentro de esa app no se ofrecen certificados ni pagos digitales por fuera de Google Play.
+  var play = false;
+  try {
+    if (document.referrer.indexOf("android-app://com.guzmanyabogados.app") === 0) sessionStorage.setItem("ga_play", "1");
+    play = sessionStorage.getItem("ga_play") === "1";
+  } catch (e) {}
+  window.gaPlay = play;
+  if (play) document.documentElement.classList.add("app-play");
   function sesion() { try { var s = JSON.parse(localStorage.getItem("ga_cuenta") || "null"); return s && s.whatsapp && s.correo ? s : null; } catch (e) { return null; } }
   function pintar() {
     var s = sesion();

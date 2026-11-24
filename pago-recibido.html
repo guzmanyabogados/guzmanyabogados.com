@@ -9,7 +9,7 @@
 <link rel="manifest" href="/manifest.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Guzmán Abogados">
-<link rel="stylesheet" href="/assets/estilo.css?v=20261124b">
+<link rel="stylesheet" href="/assets/estilo.css?v=20261124c">
 <title>Confirmar por WhatsApp · Guzmán y Abogados</title>
 <meta name="robots" content="noindex">
 </head>
@@ -22,7 +22,7 @@
     </a>
     <nav class="menu" aria-label="Secciones">
       <a href="/#asuntos">Asuntos</a>
-      <a href="/#tramites">Trámites en línea</a>
+      <a href="/#tramites" data-no-app>Trámites en línea</a>
       <a href="/documentos.html">Documentos</a>
       <a href="/#cita">Cita</a>
       <a href="/#oficina">Oficina</a>
@@ -101,7 +101,7 @@
           var url = URL.createObjectURL(new Blob([arr], { type: "application/pdf" }));
           var d = enlace("boton-oro", url, "Descargar mi documento"); d.setAttribute("download", r.nombreArchivo || "documento.pdf");
           acciones.insertBefore(d, acciones.firstChild);
-          acciones.appendChild(enlace("boton-linea", "https://checkout.wompi.co/l/rJvdYm", "Firma digital · $19.000 por firma"));
+          if (!(function () { try { return sessionStorage.getItem("ga_play") === "1"; } catch (e) { return false; } })()) acciones.appendChild(enlace("boton-linea", "https://checkout.wompi.co/l/rJvdYm", "Firma digital · $19.000 por firma"));
         } else if (r.estado === "revision") {
           estado.textContent = "Pago aprobado";
           titulo.textContent = "El abogado está revisando su documento";
@@ -197,6 +197,6 @@
     .catch(function () { manual.hidden = !cfg.api; });
 })();
 </script>
-<script src="/assets/sesion.js?v=20261124b" defer></script>
+<script src="/assets/sesion.js?v=20261124c" defer></script>
 </body>
 </html>
