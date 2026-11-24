@@ -359,3 +359,9 @@ html.sin-scroll { overflow: hidden; }
 /* Catálogo de documentos por grupos */
 .tarjetas .grupo-docs { grid-column: 1 / -1; list-style: none; font-family: var(--display); font-size: 1.55rem; color: var(--oro-claro); margin: 1.4rem 0 -.2rem; padding-bottom: .35rem; border-bottom: 1px solid var(--filete-suave); }
 .tarjetas .grupo-docs:first-child { margin-top: 0; }
+
+/* Mi cuenta: avance hacia la minuta gratis */
+.progreso { list-style: none; display: flex; gap: .7rem; padding: 0; margin: 1.4rem 0 .6rem; }
+.progreso li { width: 3rem; height: 3rem; border-radius: 50%; border: 2px solid var(--oro); display: grid; place-items: center; color: var(--niebla); font-weight: 700; }
+.progreso li.lleno { background: var(--oro); color: #0A1628; }
+.progreso-texto { color: var(--oro-claro); font-weight: 600; }

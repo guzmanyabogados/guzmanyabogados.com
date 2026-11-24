@@ -196,7 +196,7 @@
       desc: "Administrar un inmueble, DIAN, servicios públicos, impuestos, patios, EPS, registro civil, reclamar documentos o dinero.",
       consejos: ["Sirve para trámites ante entidades y para administrar un inmueble: arrendarlo, cobrar los cánones y pagar sus cuentas.",
         "No sirve para vender, prometer en venta, hipotecar ni firmar escrituras, ni para procesos judiciales. Para eso escríbanos por WhatsApp al 320 563 9603 y el abogado se lo prepara.",
-        "Muchas entidades, notarías e inmobiliarias piden la firma autenticada. Se la autenticamos en línea por $49.000."],
+        "Muchas entidades, notarías e inmobiliarias piden la firma autenticada: hágalo en cualquier notaría con su cédula."],
       roles: [{ id: "poderdante", et: "Quien da el poder", min: 1, max: 3, p: {} },
         { id: "apoderado", et: "Quien recibe el poder", min: 1, max: 1, p: {} },
         { id: "testigo", et: "Testigo que firma a ruego", min: 0, max: 1, p: { simple: 1 }, si: ["ruego", "si"] }],
@@ -326,7 +326,7 @@
     poder_vehiculo: {
       nombre: "Poder especial para vehículos", corto: "Poder para vehículos", precio: { auto: 20000, abogado: 60000 },
       desc: "Traspaso, vender, comprar o administrar un carro, moto o maquinaria.",
-      consejos: ["Para trámites de tránsito el poder debe ir autenticado, y quien lo da y quien lo recibe deben estar inscritos en el RUNT. Se lo autenticamos en línea por $49.000."],
+      consejos: ["Para trámites de tránsito el poder debe ir autenticado, y quien lo da y quien lo recibe deben estar inscritos en el RUNT. La autenticación se hace en cualquier notaría."],
       roles: [{ id: "poderdante", et: "Quien da el poder (propietario)", min: 1, max: 3, p: {} },
         { id: "apoderado", et: "Quien recibe el poder", min: 1, max: 1, p: {} }],
       campos: VEHICULO.concat([
@@ -654,7 +654,7 @@
     pagare: {
       nombre: "Pagaré", corto: "Pagaré", precio: { auto: 20000, abogado: 60000 },
       desc: "Respalda una deuda en dinero, con o sin intereses, a un solo pago o por cuotas. También con espacios en blanco y su carta de instrucciones.",
-      consejos: ["Lo firma solo quien debe. Quien presta no lo firma: lo guarda.", "Si deja espacios en blanco, escoja cuáles: el valor, la fecha de vencimiento o los dos. La carta de instrucciones (va en el mismo documento) dice cómo se llenan solo esos espacios, y quien debe se queda con una copia. El pagaré solo puede llenarse como diga la carta.", "Los intereses no pueden pasar la tasa de usura que certifica la Superintendencia Financiera, que cambia cada mes: consúltela el día de la firma."],
+      consejos: ["Lo firma solo quien debe. Quien presta no lo firma: lo guarda.", "El pagaré no describe el préstamo: las condiciones (entrega del dinero, plazo, intereses) van en el contrato de mutuo, que puede hacer aparte.", "Si deja espacios en blanco, escoja cuáles: el valor, la fecha de vencimiento o los dos. La carta de instrucciones (va en el mismo documento) dice cómo se llenan solo esos espacios, y quien debe se queda con una copia. El pagaré solo puede llenarse como diga la carta.", "Los intereses no pueden pasar la tasa de usura que certifica la Superintendencia Financiera, que cambia cada mes: consúltela el día de la firma."],
       sinAnexos: 1, firmaEt: ["Municipio donde se firma", "Fecha de firma (creación)"],
       roles: [{ id: "deudor", et: "Quien debe y firma (parte deudora)", min: 1, max: 3, p: { contacto: 2 } },
         { id: "acreedor", et: "A favor de quién (quien presta)", min: 1, max: 1, p: { simple: 1 } }],
@@ -675,9 +675,9 @@
         { id: "interesModo", et: "Los intereses se pagan", tipo: "select", op: [["vencido", "Por mes vencido"], ["anticipado", "Por mes anticipado"]], si: ["intereses", "si"] },
         { id: "interesDia", et: "Día del mes en que se pagan", tipo: "numero", si: ["intereses", "si"] },
         { id: "aceleraCuotas", et: "Se puede cobrar todo si se atrasa en … pagos", tipo: "numero", def: "1", si: [["formaPago", "cuotas"], ["intereses", "si"]], siTodas: [["modalidad", "lleno"]] },
-        { g: "Deuda que respalda", si: ["modalidad", "blanco"] },
-        { id: "obligacion", et: "Describa la deuda con precisión", tipo: "area", si: ["modalidad", "blanco"], ayuda: "El pagaré no podrá llenarse por otra deuda. Ej.: préstamo de $5.000.000 entregado el 1 de diciembre de 2026, con intereses del 1,5 % mensual, pagadero en 10 cuotas mensuales." },
+        { g: "Carta de instrucciones", si: ["modalidad", "blanco"] },
         { id: "moraCarta", et: "Puede llenarse si se atrasa en … cuotas o mensualidades", tipo: "numero", def: "1", si: ["modalidad", "blanco"] },
+        { id: "negocio", et: "Contrato que respalda (opcional)", req: 0, ph: "Ej.: contrato de mutuo del 1 de diciembre de 2026", si: ["modalidad", "blanco"], ayuda: "Solo si quiere que la carta lo mencione. El préstamo y sus condiciones van en el contrato de mutuo, aparte." },
         { g: "Hipoteca" },
         { id: "hipoteca", et: "¿La deuda tiene hipoteca?", tipo: "radio", op: SI_NO, def: "no" },
         { id: "hipEscritura", et: "Número de la escritura", si: ["hipoteca", "si"] },
@@ -1022,7 +1022,7 @@
       el("label", { class: "nivel" }, [el("input", { type: "radio", name: "nivel", value: "auto", checked: true }), el("b", { texto: "Automático · " + pesos(d.precio.auto) }), el("span", { texto: "Lo recibe en PDF apenas se apruebe el pago." })]),
       el("label", { class: "nivel" }, [el("input", { type: "radio", name: "nivel", value: "abogado" }), el("b", { texto: "Con revisión del abogado · " + pesos(d.precio.abogado) }), el("span", { texto: "El abogado lo revisa y se lo enviamos a más tardar el siguiente día hábil." })])
     ]));
-    sec3.appendChild(el("label", { class: "acepto" }, [el("input", { type: "checkbox", id: "acepta", required: true }), el("span", { html: "<b>Entiendo y acepto:</b> Guzmán y Abogados es el puente para hacer este trámite; no garantiza que el trámite sea viable ni que el documento me sirva para lo que busco. Los datos que doy y lo que agrego son de mi responsabilidad. Si lo firmo o autentico en línea, la firma da fe de quién firma, no del contenido." })]));
+    sec3.appendChild(el("label", { class: "acepto" }, [el("input", { type: "checkbox", id: "acepta", required: true }), el("span", { html: "<b>Entiendo y acepto:</b> Guzmán y Abogados es el puente para hacer este trámite; no garantiza que el trámite sea viable ni que el documento me sirva para lo que busco. Los datos que doy y lo que agrego son de mi responsabilidad. Si lo firmo digitalmente, la firma da fe de quién firma, no del contenido." })]));
     sec3.appendChild(el("label", { class: "acepto" }, [el("input", { type: "checkbox", id: "autoriza", required: true }), el("span", { html: "Autorizo el uso de mis datos y los de las demás personas del documento, que me autorizaron a darlos, solo para elaborar y enviar este documento, según la <a href=\"/politica-de-datos.html\" target=\"_blank\" rel=\"noopener\">política de tratamiento de datos</a>." })]));
     sec3.appendChild(el("label", { class: "acepto" }, [el("input", { type: "checkbox", id: "mensajes" }), el("span", { html: "Quiero recibir recordatorios y beneficios de Guzmán y Abogados por correo y WhatsApp. <span class=\"opcional\">(opcional; puede retirarlo cuando quiera)</span>" })]));
     form.appendChild(sec3);

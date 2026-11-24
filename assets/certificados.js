@@ -1,4 +1,4 @@
-// Certificados en línea: el cliente pide el certificado, la oficina verifica el folio y solo entonces el cliente paga.
+// Certificados en línea: el cliente llena los datos y paga de una vez; la oficina recibe un solo aviso, expide y sube el PDF.
 (function () {
   "use strict";
   var cfg = window.GA_CONFIG || {};
@@ -75,12 +75,13 @@
   }
 
   // ---------- Formulario ----------
-  function formulario(tipo) {
+  function formulario(tipo, tx) {
     var s = SERVICIOS[tipo] || SERVICIOS.tradicion;
     raiz.innerHTML = "";
     var radios = el("div", { class: "opciones", role: "radiogroup" }, Object.keys(SERVICIOS).map(function (k) {
       var r = el("input", { type: "radio", name: "servicio", value: k, checked: k === tipo });
       r.addEventListener("change", function () { history.replaceState(null, "", "?t=" + k); formulario(k); });
+      if (tx && k !== tipo) r.disabled = true;
       return el("label", { class: "opcion" }, [r, el("span", { texto: SERVICIOS[k].nombre + " · " + pesos(SERVICIOS[k].precio) })]);
     }));
     var oficina = buscador(OPC_ORIP, "Escriba el código o el nombre, ej. 001 o Medellín");
@@ -94,7 +95,8 @@
     var correo = el("input", { type: "email", autocomplete: "email" });
     var acepta = el("input", { type: "checkbox" }), autoriza = el("input", { type: "checkbox" }), mensajes = el("input", { type: "checkbox" });
     var error = el("p", { class: "error", hidden: true, role: "alert" });
-    var boton = el("button", { class: "boton boton-oro", type: "submit", texto: "Enviar solicitud" });
+    var textoBoton = tx ? "Enviar los datos" : s.pago ? "Continuar al pago de " + pesos(s.precio) : "Enviar solicitud";
+    var boton = el("button", { class: "boton boton-oro", type: "submit", texto: textoBoton });
 
     // Si pegan la matrícula completa (001-123456), se separa sola en oficina y número.
     numero.addEventListener("input", function () {
@@ -117,9 +119,10 @@
     noSe.addEventListener("change", ver);
 
     var f = el("form", { novalidate: true }, [
-      el("p", { class: "ante", texto: "Paso 1 de 3 · Datos del inmueble" }),
+      el("p", { class: "ante", texto: tx ? "Ya recibimos su pago · Falta un paso" : "Paso 1 de 2 · Datos del inmueble" }),
       el("h1", { class: "titulo-app", texto: s.nombre }),
-      el("p", { class: "aviso-datos", texto: "Antes de cobrarle verificamos en la entidad que el certificado se pueda expedir (por ejemplo, que el folio no esté bloqueado). Le avisamos y solo entonces paga " + pesos(s.precio) + "." }),
+      el("p", { class: "aviso-datos", texto: tx ? "Escriba los datos del inmueble y a dónde se lo enviamos. Con eso lo expedimos de inmediato, dentro del horario de atención."
+        : "Llene los datos y pague " + pesos(s.precio) + " en línea. Lo expedimos de inmediato y le llega en PDF a su correo, en minutos dentro del horario de atención. Si la entidad no permite expedirlo (por ejemplo, porque el folio está bloqueado), le devolvemos el 100 %." }),
       el("div", { class: "bloque" }, [el("p", { class: "etiqueta", texto: "¿Qué necesita?" }), radios]),
       el("h2", { class: "bloque-titulo", texto: "Inmueble" }),
       el("div", { class: "rejilla" }, tipo === "tradicion" ? [cOficina, cNumero, el("div", { class: "campo ancho" }, [cNoSe]), cMunicipio]
@@ -127,7 +130,7 @@
       tipo === "tradicion" ? null : el("p", { class: "ayuda", texto: "Escriba al menos uno: la matrícula, el número predial o la dirección. Entre más datos, más rápido lo encontramos." }),
       el("h2", { class: "bloque-titulo", texto: "¿A dónde se lo enviamos?" }),
       el("div", { class: "rejilla" }, [campo("Nombre completo", nombre), campo("Celular con WhatsApp", celular), campo("Correo electrónico", correo, "Allí le llega el certificado en PDF.", false, true)]),
-      el("label", { class: "acepto" }, [acepta, el("span", {}, [el("b", { texto: "Entiendo el aviso. " }), "Somos el puente para que usted haga este trámite: no garantizamos que el trámite sea viable ni que el documento le sirva para lo que busca. Los datos que nos da son de su responsabilidad."])]),
+      el("label", { class: "acepto" }, [acepta, el("span", {}, [el("b", { texto: "Entiendo el aviso. " }), "Somos el puente para que usted haga este trámite: no garantizamos que el trámite sea viable ni que el documento le sirva para lo que busca. Los datos que nos da son de su responsabilidad. Si la entidad no permite expedirlo, me devuelven lo que pagué."])]),
       el("label", { class: "acepto" }, [autoriza, el("span", {}, ["Autorizo el uso de mis datos para este trámite, según la ", el("a", { href: "/politica-de-datos.html", target: "_blank", texto: "política de tratamiento de datos" }), "."])]),
       el("label", { class: "acepto" }, [mensajes, el("span", {}, ["Quiero recibir recordatorios y beneficios de Guzmán y Abogados por correo y WhatsApp. ", el("span", { class: "opcional", texto: "(opcional; puede retirarlo cuando quiera)" })])]),
       error,
@@ -136,6 +139,15 @@
     if (tipo !== "tradicion") { cOficina.querySelector("label").appendChild(el("span", { class: "opcional", texto: " (opcional)" })); cNumero.querySelector("label").appendChild(el("span", { class: "opcional", texto: " (opcional)" })); }
     ver();
     raiz.appendChild(f);
+    // Ya pagó: se llenan su nombre, correo y celular con los datos del pago, para que solo escriba los del inmueble
+    if (tx) fetch("https://production.wompi.co/v1/transactions/" + encodeURIComponent(tx)).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+      var d = j && j.data; if (!d) return;
+      if (d.customer_email && !correo.value) correo.value = d.customer_email;
+      var cd = d.customer_data || {};
+      if (cd.full_name && !nombre.value) nombre.value = String(cd.full_name).toUpperCase();
+      var tel = String(cd.phone_number || "").replace(/\D/g, "").replace(/^57(?=3\d{9}$)/, "");
+      if (/^3\d{9}$/.test(tel) && !celular.value) celular.value = tel;
+    }).catch(function () {});
 
     f.addEventListener("submit", function (ev) {
       ev.preventDefault();
@@ -163,14 +175,16 @@
         oficina: ofi && !(trad && noSe.checked) ? ofi.codigo + " – " + ofi.nombre : "",
         matricula: numero.value, municipio: mun ? mun.valor : "", catastral: catastral.value.trim(), direccion: direccion.value.trim(),
         nombre: nombre.value.trim().toUpperCase(), whatsapp: celular.value.replace(/\D/g, "").replace(/^57(?=3\d{9}$)/, ""), correo: correo.value.trim(),
-        acepta: acepta.checked, autorizaDatos: autoriza.checked, autorizaMensajes: mensajes.checked
+        acepta: acepta.checked, autorizaDatos: autoriza.checked, autorizaMensajes: mensajes.checked, transaccion: tx || ""
       }).then(function (r) {
-        if (!r.ok) throw new Error(r.error || "No pudimos registrar la solicitud");
+        if (!r.ok && !r.codigo) throw new Error(r.error || "No pudimos registrar la solicitud");
         guardar(r.codigo);
         history.replaceState(null, "", "?c=" + r.codigo);
+        // Directo al pago: guarda el código para que la página de pago aprobado lo encuentre
+        if (r.estado === "POR PAGAR" && s.pago && !tx) { boton.textContent = "Abriendo el pago…"; location.href = s.pago; return; }
         estado(r.codigo, r);
       }).catch(function (e) {
-        boton.disabled = false; boton.textContent = "Enviar solicitud";
+        boton.disabled = false; boton.textContent = textoBoton;
         error.hidden = false; error.textContent = (e && e.message ? e.message + ". " : "") + "Si el problema sigue, escríbanos por WhatsApp al 320 563 9603.";
       });
     });
@@ -196,33 +210,33 @@
       refe.textContent = s.nombre + ref + " · Código " + codigo;
       ante.textContent = "Solicitud en línea";
       var e = r.estado;
-      if (e === "POR VERIFICAR") {
-        ante.textContent = "Paso 2 de 3 · Verificación";
-        titulo.textContent = "Estamos verificando que se pueda expedir";
-        p("Revisamos en la entidad que el folio esté disponible para expedir el certificado. Todavía no tiene que pagar nada.");
-        p("Le avisamos a " + r.correo + " apenas lo verifiquemos, normalmente en pocos minutos dentro del horario de atención: lunes a viernes de 8:00 a. m. a 5:00 p. m. y sábados de 8:00 a. m. a 12:00 m. Esta página también se actualiza sola.");
-        acciones.appendChild(el("a", { class: "boton boton-linea", href: wa("Hola, envié la solicitud " + codigo + " (" + s.nombre + ref + ")."), texto: "Escribir por WhatsApp" }));
-        temporizador = setTimeout(consultar, 20000);
-      } else if (e === "DISPONIBLE") {
-        ante.textContent = "Paso 3 de 3 · Pago";
-        titulo.textContent = "Verificado: ya puede pagar";
-        if (s.pago) {
-          p("Revisamos y el certificado se puede expedir. Pague " + pesos(s.precio) + " en la plataforma segura de Wompi y se lo enviamos en PDF a " + r.correo + ".");
-          if (r.referencia) p("Si Wompi le pide la matrícula, escriba: " + r.referencia);
+      if (e === "POR PAGAR" || e === "DISPONIBLE" || e === "POR PAGAR - WHATSAPP") {
+        ante.textContent = "Paso 2 de 2 · Pago";
+        titulo.textContent = "Falta el pago";
+        if (s.pago && e !== "POR PAGAR - WHATSAPP") {
+          p("Pague " + pesos(s.precio) + " en la plataforma segura de Wompi (PSE, tarjeta o Nequi). Apenas se apruebe, lo expedimos y se lo enviamos en PDF a " + r.correo + ".");
           acciones.appendChild(el("a", { class: "boton boton-oro", href: s.pago, rel: "noopener", onclick: function () { guardar(codigo); }, texto: "Pagar " + pesos(s.precio) }));
         } else {
-          p("Revisamos y el certificado se puede expedir. Para pagar " + pesos(s.precio) + ", escríbanos por WhatsApp y le enviamos el enlace de pago. Después se lo enviamos en PDF a " + r.correo + ".");
+          p("Le escribimos por WhatsApp con el enlace de pago de " + pesos(s.precio) + ". Si prefiere, escríbanos usted y lo expedimos apenas pague. Se lo enviamos en PDF a " + r.correo + ".");
           acciones.appendChild(el("a", { class: "boton boton-oro", href: wa("Hola, quiero pagar la solicitud " + codigo + " (" + s.nombre + ref + ") por " + pesos(s.precio) + "."), rel: "noopener", texto: "Pagar por WhatsApp" }));
         }
         acciones.appendChild(el("a", { class: "boton boton-linea", href: wa("Hola, tengo una pregunta sobre la solicitud " + codigo + "."), texto: "Preguntar por WhatsApp" }));
-      } else if (e === "NO SE PUEDE EXPEDIR") {
+      } else if (e === "POR VERIFICAR") {
+        ante.textContent = "Paso 2 de 3 · Verificación";
+        titulo.textContent = "Estamos verificando que se pueda expedir";
+        p("Revisamos en la entidad que el folio esté disponible para expedir el certificado. Todavía no tiene que pagar nada.");
+        p("Le avisamos a " + r.correo + " apenas lo verifiquemos, normalmente en pocos minutos dentro del horario de atención: lunes a viernes de 7:30 a. m. a 5:00 p. m. y sábados de 7:30 a. m. a 1:00 p. m. Esta página también se actualiza sola.");
+        acciones.appendChild(el("a", { class: "boton boton-linea", href: wa("Hola, envié la solicitud " + codigo + " (" + s.nombre + ref + ")."), texto: "Escribir por WhatsApp" }));
+        temporizador = setTimeout(consultar, 20000);
+      } else if (/^NO SE PUEDE EXPEDIR/.test(e)) {
         titulo.textContent = "No se puede expedir en línea";
-        p("Revisamos y por ahora la entidad no permite expedir este certificado en línea" + (r.nota ? ": " + r.nota : "") + ". No haga ningún pago.");
-        p("Escríbanos por WhatsApp y le explicamos qué hacer.");
+        p("La entidad no permite expedir este certificado en línea" + (r.nota ? ": " + r.nota : "") + ".");
+        p(/DEVOLVER/.test(e) ? "Le devolvemos el 100 % de lo que pagó. Le enviamos los detalles a " + r.correo + "." : "No haga ningún pago.");
+        p("Escríbanos por WhatsApp y le explicamos qué se puede hacer.");
         acciones.appendChild(el("a", { class: "boton boton-oro", href: wa("Hola, mi solicitud " + codigo + " no se pudo expedir en línea. ¿Qué puedo hacer?"), texto: "Escribir por WhatsApp" }));
       } else if (e === "REVISAR DATOS") {
         titulo.textContent = "Necesitamos confirmar un dato";
-        p("No encontramos el inmueble con los datos que nos dio" + (r.nota ? " (" + r.nota + ")" : "") + ". No haga ningún pago todavía: le escribimos por WhatsApp, o escríbanos usted.");
+        p("No encontramos el inmueble con los datos que nos dio" + (r.nota ? " (" + r.nota + ")" : "") + ". Le escribimos por WhatsApp, o escríbanos usted con una foto de la escritura o del predial.");
         acciones.appendChild(el("a", { class: "boton boton-oro", href: wa("Hola, sobre mi solicitud " + codigo + ": "), texto: "Escribir por WhatsApp" }));
         acciones.appendChild(el("a", { class: "boton boton-linea", href: "?t=" + r.servicio, onclick: function () { try { localStorage.removeItem("ga_cert"); } catch (x) {} }, texto: "Hacer una solicitud nueva" }));
       } else if (/^PAGO PENDIENTE/.test(e)) {
@@ -231,13 +245,15 @@
         temporizador = setTimeout(consultar, 30000);
       } else if (e === "PAGADO - POR EXPEDIR" || e === "PAGADO - POR VERIFICAR") {
         titulo.textContent = "Recibimos su pago";
-        p("Estamos expidiendo su certificado. Se lo enviamos en PDF a " + r.correo + " lo más pronto posible dentro del horario de atención. No tiene que hacer nada más.");
+        p("Estamos expidiendo su certificado. Se lo enviamos en PDF a " + r.correo + " en minutos, dentro del horario de atención: lunes a viernes de 7:30 a. m. a 5:00 p. m. y sábados de 7:30 a. m. a 1:00 p. m. No tiene que hacer nada más. Esta página se actualiza sola.");
         acciones.appendChild(el("a", { class: "boton boton-linea", href: wa("Hola, pagué la solicitud " + codigo + "."), texto: "Escribir por WhatsApp" }));
+        temporizador = setTimeout(consultar, 30000);
       } else if (e === "ENTREGADO") {
         titulo.textContent = "Certificado enviado";
         p("Se lo enviamos a " + r.correo + ". Si no lo ve, revise la carpeta de spam o escríbanos por WhatsApp.");
         acciones.appendChild(el("a", { class: "boton boton-linea", href: wa("Hola, no me ha llegado el certificado de la solicitud " + codigo + "."), texto: "Escribir por WhatsApp" }));
         acciones.appendChild(el("a", { class: "boton boton-linea", href: "?t=" + r.servicio, onclick: function () { try { localStorage.removeItem("ga_cert"); } catch (x) {} }, texto: "Pedir otro certificado" }));
+        texto.appendChild(el("p", { class: "aviso-datos" }, ["Regístrese gratis y por cada 5 trámites le regalamos una minuta en línea. ", el("a", { href: "/mi-cuenta.html", texto: "Registrarme" })]));
       } else {
         titulo.textContent = "Estamos revisando su solicitud";
         p("Escríbanos por WhatsApp con su código " + codigo + " y le contamos cómo va.");
@@ -253,8 +269,8 @@
     if (previo && previo.estado) pintar(previo); else consultar();
   }
 
-  // ---------- Página de la oficina: marcar el resultado de la verificación ----------
-  function oficina(codigo, clave, sugerido) {
+  // ---------- Página de la oficina: subir el PDF y enviarlo al cliente (o marcar que no se puede) ----------
+  function oficina(codigo, clave) {
     raiz.innerHTML = "";
     var caja = el("div", { id: "pago" }, [el("p", { class: "ante", texto: "Oficina · " + codigo }), el("h1", { class: "titulo-app", texto: "Cargando la solicitud…" })]);
     raiz.appendChild(caja);
@@ -269,22 +285,64 @@
         if (f[1]) { dl.appendChild(el("dt", { texto: f[0] })); dl.appendChild(el("dd", { texto: String(f[1]) })); }
       });
       caja.appendChild(el("div", { class: "resumen" }, [dl]));
-      if (d.servicio === "tradicion") caja.appendChild(el("p", {}, [el("a", { class: "boton boton-linea", href: d.snr, target: "_blank", rel: "noopener", texto: "Abrir la Supernotariado" })]));
-      var nota = el("input", { type: "text", placeholder: "Ej. folio bloqueado por turno de registro", autocomplete: "off" });
-      caja.appendChild(campo("Nota para el cliente (si no se puede expedir o faltan datos)", nota, null, true, true));
       var salida = el("div", {});
-      var opciones = [["disponible", "Disponible: el cliente puede pagar", "boton-oro"], ["no", "No se puede expedir", "boton-linea"], ["revisar", "Datos errados", "boton-linea"], ["entregado", "Ya lo envié: entregado", "boton-linea"]];
+      function resultado(r) {
+        salida.innerHTML = "";
+        salida.appendChild(el("h2", { class: "bloque-titulo", texto: r.titulo || (r.ok ? "Listo" : "No se pudo") }));
+        salida.appendChild(el("p", { texto: r.ok ? (r.detalle || "") : (r.error || "") }));
+        if (r.whatsapp) salida.appendChild(el("p", {}, [el("a", { class: "boton boton-oro", href: r.whatsapp, rel: "noopener", texto: "Avisarle también por WhatsApp" })]));
+        salida.scrollIntoView({ block: "center" });
+      }
+      function sinConexion() { salida.innerHTML = ""; salida.appendChild(el("p", { class: "error", texto: "No hubo conexión. Intente de nuevo." })); }
+      if (d.estado === "ENTREGADO") { caja.appendChild(el("p", { texto: "Esta solicitud ya se entregó. Si el cliente no lo recibió, reenvíeselo desde el correo." })); return; }
+
+      // 1. Expedir
+      caja.appendChild(el("h2", { class: "bloque-titulo", texto: "1. Expida el certificado" }));
+      var pasos = el("div", { class: "acciones" });
+      if (d.servicio === "tradicion") pasos.appendChild(el("a", { class: "boton boton-linea", href: d.snr, target: "_blank", rel: "noopener", texto: "Abrir la Supernotariado" }));
+      if (d.matricula) {
+        var copiar = el("button", { type: "button", class: "boton boton-linea", texto: "Copiar matrícula " + d.matricula, onclick: function () {
+          try { navigator.clipboard.writeText(d.matricula); copiar.textContent = "Copiada: " + d.matricula; } catch (e) {}
+        } });
+        pasos.appendChild(copiar);
+      }
+      caja.appendChild(pasos);
+
+      // 2. Subir y enviar
+      caja.appendChild(el("h2", { class: "bloque-titulo", texto: "2. Súbalo y envíeselo al cliente" }));
+      var archivo = el("input", { type: "file", accept: "application/pdf,.pdf" });
+      caja.appendChild(campo("PDF del certificado", archivo, "Le llega al cliente desde Guzmán y Abogados, con el PDF adjunto, y la solicitud queda entregada.", false, true));
+      var porWa = el("input", { type: "checkbox" });
+      if (!d.pagado) caja.appendChild(el("label", { class: "acepto" }, [porWa, el("span", { texto: "El cliente ya pagó (por WhatsApp o con otro enlace) y lo verifiqué." })]));
+      var enviar = el("button", { type: "button", class: "boton boton-oro", texto: "Enviar al cliente", onclick: function () {
+        var f = archivo.files && archivo.files[0];
+        if (!f) { resultado({ ok: false, titulo: "Falta el PDF", error: "Elija el archivo del certificado." }); return; }
+        if (!/pdf$/i.test(f.type) && !/\.pdf$/i.test(f.name)) { resultado({ ok: false, titulo: "Archivo no válido", error: "Suba el certificado en PDF." }); return; }
+        if (!d.pagado && !porWa.checked) { resultado({ ok: false, titulo: "Todavía no hay pago aprobado", error: "Si ya verificó el pago por otro medio, marque la casilla." }); return; }
+        enviar.disabled = true; enviar.textContent = "Enviando…";
+        var lector = new FileReader();
+        lector.onload = function () {
+          var b64 = String(lector.result).split(",")[1] || "";
+          api({ accion: "entregarCertificado", c: codigo, k: clave, pdf: b64, sinPago: !d.pagado && porWa.checked }).then(function (r) {
+            resultado(r); enviar.textContent = r.ok ? "Enviado" : "Enviar al cliente"; enviar.disabled = !!r.ok;
+          }).catch(function () { sinConexion(); enviar.disabled = false; enviar.textContent = "Enviar al cliente"; });
+        };
+        lector.readAsDataURL(f);
+      } });
+      caja.appendChild(el("div", { class: "acciones" }, [enviar]));
+
+      // Si no se puede
+      caja.appendChild(el("h2", { class: "bloque-titulo", texto: "¿No se puede expedir?" }));
+      var nota = el("input", { type: "text", placeholder: "Ej. folio bloqueado por turno de registro", autocomplete: "off" });
+      caja.appendChild(campo("Nota para el cliente", nota, null, true, true));
+      var opciones = [["no", d.pagado ? "No se puede expedir: devolver el pago" : "No se puede expedir"], ["revisar", "Datos errados: pedirle los datos"], ["entregado", "Ya lo envié por otro medio"]];
       var botones = el("div", { class: "acciones" }, opciones.map(function (o) {
-        return el("button", { type: "button", class: "boton " + (o[0] === sugerido ? "boton-oro" : o[2] === "boton-oro" && sugerido ? "boton-linea" : o[2]), texto: o[1], onclick: function () {
+        return el("button", { type: "button", class: "boton boton-linea", texto: o[1], onclick: function () {
           [].forEach.call(botones.querySelectorAll("button"), function (x) { x.disabled = true; });
           salida.innerHTML = ""; salida.appendChild(el("p", { texto: "Guardando…" }));
           api({ accion: "marcarFolio", c: codigo, k: clave, e: o[0], nota: nota.value.trim() }).then(function (r) {
-            salida.innerHTML = "";
-            salida.appendChild(el("h2", { class: "bloque-titulo", texto: r.titulo || (r.ok ? "Listo" : "No se pudo") }));
-            salida.appendChild(el("p", { texto: r.ok ? (r.detalle || "") : (r.error || "") }));
-            if (r.whatsapp) salida.appendChild(el("p", {}, [el("a", { class: "boton boton-oro", href: r.whatsapp, rel: "noopener", texto: "Avisarle también por WhatsApp" })]));
-            [].forEach.call(botones.querySelectorAll("button"), function (x) { x.disabled = false; });
-          }).catch(function () { salida.innerHTML = ""; salida.appendChild(el("p", { class: "error", texto: "No hubo conexión. Intente de nuevo." })); [].forEach.call(botones.querySelectorAll("button"), function (x) { x.disabled = false; }); });
+            resultado(r); [].forEach.call(botones.querySelectorAll("button"), function (x) { x.disabled = false; });
+          }).catch(function () { sinConexion(); [].forEach.call(botones.querySelectorAll("button"), function (x) { x.disabled = false; }); });
         } });
       }));
       caja.appendChild(botones);
@@ -293,8 +351,9 @@
   }
 
   // ---------- Inicio ----------
-  var q = new URLSearchParams(location.search), c = (q.get("c") || "").toUpperCase(), t = q.get("t");
-  if (/^GA-C\d{6}-[A-Z0-9]{4}$/.test(c) && q.get("k")) oficina(c, q.get("k"), q.get("e"));
+  var q = new URLSearchParams(location.search), c = (q.get("c") || "").toUpperCase(), t = q.get("t"), tx = (q.get("tx") || "").replace(/[^0-9A-Za-z-]/g, "");
+  if (/^GA-C\d{6}-[A-Z0-9]{4}$/.test(c) && q.get("k")) oficina(c, q.get("k"));
+  else if (tx && SERVICIOS[t]) formulario(t, tx);
   else if (/^GA-C\d{6}-[A-Z0-9]{4}$/.test(c)) { guardar(c); estado(c); }
   else if (!t && leerGuardado()) { history.replaceState(null, "", "?c=" + leerGuardado()); estado(leerGuardado()); }
   else formulario(SERVICIOS[t] ? t : "tradicion");
