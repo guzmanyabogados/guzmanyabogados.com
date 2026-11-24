@@ -57,6 +57,7 @@
     caja.appendChild(salida);
     caja.appendChild(el("p", { class: "aviso-datos", texto: "Cuentan los trámites pagados con este celular o este correo: documentos en línea, certificados y servicios en la oficina. Las minutas gratis no suman. El código vence a los 60 días." }));
     caja.appendChild(el("p", {}, [el("a", { href: "#", class: "enlace-wa", texto: "Cerrar sesión en este dispositivo", onclick: function (ev) { ev.preventDefault(); olvidar(); inicio(null, "entrar"); } })]));
+    caja.appendChild(el("p", { class: "aviso-datos" }, ["¿Quiere eliminar su registro y sus datos? ", el("a", { href: "/politica-de-datos.html#eliminar-registro", texto: "Vea cómo pedirlo" }), "."]));
     raiz.appendChild(caja);
   }
 
