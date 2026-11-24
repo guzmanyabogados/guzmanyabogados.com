@@ -139,6 +139,9 @@
     if (tipo !== "tradicion") { cOficina.querySelector("label").appendChild(el("span", { class: "opcional", texto: " (opcional)" })); cNumero.querySelector("label").appendChild(el("span", { class: "opcional", texto: " (opcional)" })); }
     ver();
     raiz.appendChild(f);
+    // Con la sesión iniciada, sus datos de contacto ya quedan escritos
+    var ses = null; try { ses = JSON.parse(localStorage.getItem("ga_cuenta") || "null"); } catch (e) {}
+    if (ses && !tx) { if (ses.nombre && !nombre.value) nombre.value = ses.nombre; if (ses.whatsapp && !celular.value) celular.value = ses.whatsapp; if (ses.correo && !correo.value) correo.value = ses.correo; }
     // Ya pagó: se llenan su nombre, correo y celular con los datos del pago, para que solo escriba los del inmueble
     if (tx) fetch("https://production.wompi.co/v1/transactions/" + encodeURIComponent(tx)).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
       var d = j && j.data; if (!d) return;

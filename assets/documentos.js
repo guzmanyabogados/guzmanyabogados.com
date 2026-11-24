@@ -829,8 +829,8 @@
   function campo(def, ambito) {
     var id = uid("f"), tipo = def.tipo || (esMunicipio(def) ? "municipio" : "texto"), req = def.req !== 0;
     var envoltura = el("div", { class: "campo" + (tipo === "area" || tipo === "lista" || tipo === "checks" || tipo === "radio" ? " ancho" : ""), "data-campo": def.id });
-    var etiqueta = el("label", { for: id, texto: def.et + (req ? "" : "") });
-    if (!req) etiqueta.appendChild(el("span", { class: "opcional", texto: " (opcional)" }));
+    var etiqueta = el("label", { for: id, texto: def.et });
+    if (!req && !/\(opcional\)/i.test(def.et)) etiqueta.appendChild(el("span", { class: "opcional", texto: " (opcional)" }));
     var control;
     if (tipo === "select") {
       control = el("select", { id: id, name: def.id, required: req }, (def.elegir ? [el("option", { value: "", texto: "Elija…" })] : []).concat(def.op.map(function (o) { return el("option", { value: o[0], texto: o[1] }); })));
@@ -927,10 +927,10 @@
     p.appendChild(el("legend", { texto: "Persona " + (n || 1) }));
     var campos = [];
     if (opc.juridica) campos.push({ id: "juridica", et: "Es", tipo: "radio", op: [["no", "Persona natural"], ["si", "Empresa"]], def: "no" });
-    campos.push({ id: "nombre", et: "Nombre completo o razón social", ph: "Como aparece en el documento", mayus: 1 });
+    campos.push({ id: "nombre", et: opc.juridica ? "Nombre completo o razón social" : "Nombre completo", ph: "Como aparece en el documento", mayus: 1 });
     if (!opc.simple) {
       campos.push({ id: "tipoDoc", et: "Documento", tipo: "select", op: [["CC", "Cédula de ciudadanía"], ["CE", "Cédula de extranjería"], ["PPT", "Permiso por protección temporal"], ["PA", "Pasaporte"]], si: opc.juridica ? ["juridica", "no"] : null });
-      campos.push({ id: "numero", et: "Número de documento o NIT" });
+      campos.push({ id: "numero", et: opc.juridica ? "Número de documento o NIT" : "Número de documento"});
       campos.push({ id: "expedida", et: "Expedida en", req: 0, si: ["tipoDoc", "CC"] });
       campos.push({ id: "domicilio", et: "Municipio donde vive (domicilio)" });
       if (opc.civil) campos.push({ id: "estadoCivil", et: "Estado civil", tipo: "select", elegir: 1, op: [["soltero", "Soltero"], ["soltera", "Soltera"], ["casado con sociedad conyugal vigente", "Casado con sociedad conyugal vigente"], ["casada con sociedad conyugal vigente", "Casada con sociedad conyugal vigente"], ["casado con sociedad conyugal disuelta y liquidada", "Casado con sociedad conyugal disuelta y liquidada"], ["casada con sociedad conyugal disuelta y liquidada", "Casada con sociedad conyugal disuelta y liquidada"], ["soltero con unión marital de hecho", "Soltero con unión marital de hecho"], ["soltera con unión marital de hecho", "Soltera con unión marital de hecho"], ["divorciado", "Divorciado"], ["divorciada", "Divorciada"], ["viudo", "Viudo"], ["viuda", "Viuda"]] });
@@ -978,13 +978,14 @@
   function abrir(tipo) {
     var d = DOCS[tipo]; actual = tipo;
     var cont = $("#formulario"); cont.innerHTML = "";
-    cont.appendChild(el("p", { class: "ante", texto: "Paso 2 de 3 · Datos del documento" }));
+    cont.appendChild(el("p", { class: "ante", texto: "Documento en línea · " + pesos(d.precio.auto) }));
     cont.appendChild(el("h2", { texto: d.nombre }));
     if (d.consejos) cont.appendChild(el("ul", { class: "consejos" }, d.consejos.map(function (c) { return el("li", { texto: c }); })));
     cont.appendChild(el("p", { class: "aviso-datos", html: "<b>Importante:</b> lo que escriba sale tal cual en el documento. Escriba nombres, números y direcciones completos y sin errores. Los nombres de las personas salen en MAYÚSCULA y los municipios se eligen de la lista." }));
     var form = el("form", { id: "doc-form", novalidate: true });
     var sec1 = el("section", { class: "bloque" }, [el("h3", { class: "bloque-titulo", texto: "Las partes" })]);
-    d.roles.forEach(function (r) { sec1.appendChild(grupoRol(r)); });
+    // Las personas que solo aparecen según una respuesta (testigo, cónyuge, fiador…) van al final del paso de datos
+    d.roles.forEach(function (r) { if (!r.si) sec1.appendChild(grupoRol(r)); });
     form.appendChild(sec1);
     var sec2 = el("section", { class: "bloque" }), rej = null;
     d.campos.forEach(function (c) {
@@ -999,6 +1000,8 @@
       if (!rej) { rej = el("div", { class: "rejilla" }); sec2.appendChild(rej); }
       rej.appendChild(campo(c));
     });
+    var condicionales = d.roles.filter(function (r) { return r.si; });
+    if (condicionales.length) { sec2.appendChild(el("h3", { class: "bloque-titulo", texto: "Otras personas que firman" })); condicionales.forEach(function (r) { sec2.appendChild(grupoRol(r)); }); }
     form.appendChild(sec2);
     var sec3 = el("section", { class: "bloque" }, [el("h3", { class: "bloque-titulo", texto: "Para terminar" })]);
     var rej3 = el("div", { class: "rejilla" });
@@ -1026,14 +1029,46 @@
     sec3.appendChild(el("label", { class: "acepto" }, [el("input", { type: "checkbox", id: "autoriza", required: true }), el("span", { html: "Autorizo el uso de mis datos y los de las demás personas del documento, que me autorizaron a darlos, solo para elaborar y enviar este documento, según la <a href=\"/politica-de-datos.html\" target=\"_blank\" rel=\"noopener\">política de tratamiento de datos</a>." })]));
     sec3.appendChild(el("label", { class: "acepto" }, [el("input", { type: "checkbox", id: "mensajes" }), el("span", { html: "Quiero recibir recordatorios y beneficios de Guzmán y Abogados por correo y WhatsApp. <span class=\"opcional\">(opcional; puede retirarlo cuando quiera)</span>" })]));
     form.appendChild(sec3);
-    form.appendChild(el("p", { class: "error", id: "doc-error", role: "alert", hidden: true }));
-    form.appendChild(el("div", { class: "acciones" }, [el("button", { type: "submit", class: "boton boton-oro", id: "doc-enviar", texto: "Continuar al pago" }), el("button", { type: "button", class: "boton boton-linea", texto: "Elegir otro documento", onclick: volver })]));
+    sec3.appendChild(el("p", { class: "error", id: "doc-error", role: "alert", hidden: true }));
+    sec3.appendChild(el("div", { class: "acciones" }, [el("button", { type: "submit", class: "boton boton-oro", id: "doc-enviar", texto: "Continuar al pago" }), el("button", { type: "button", class: "boton boton-linea", texto: "Atrás", onclick: function () { irPaso(form, form._paso - 1); } })]));
     form.addEventListener("change", function () { refrescar(form); });
     form.addEventListener("submit", enviar);
+    // Pasos: las partes, los datos del documento y el envío. Cada paso se revisa antes de seguir.
+    var pasos = [[sec1, "Las partes"], [sec2, "Datos del documento"], [sec3, "Envío y pago"]].filter(function (x) { return x[0].querySelector("[data-campo], [data-rol]"); });
+    var guia = el("ol", { class: "pasos-form" }, pasos.map(function (x, i) { return el("li", {}, [el("span", { texto: String(i + 1) }), x[1]]); }));
+    cont.appendChild(guia);
+    form._pasos = pasos.map(function (x) { return x[0]; }); form._guia = guia;
+    form._pasos.forEach(function (sec, i) {
+      sec.classList.add("paso-form");
+      if (i === form._pasos.length - 1) return;
+      var errPaso = el("p", { class: "error", role: "alert", hidden: true });
+      sec.appendChild(errPaso);
+      sec.appendChild(el("div", { class: "acciones" }, [
+        el("button", { type: "button", class: "boton boton-oro", texto: "Siguiente", onclick: function () {
+          var faltan = validar(sec);
+          if (faltan.length) { errPaso.textContent = "Faltan datos o hay un dato por corregir. Los marcamos en rojo."; errPaso.hidden = false; faltan[0].scrollIntoView({ behavior: "smooth", block: "center" }); return; }
+          errPaso.hidden = true; irPaso(form, i + 1);
+        } }),
+        i > 0 ? el("button", { type: "button", class: "boton boton-linea", texto: "Atrás", onclick: function () { irPaso(form, i - 1); } })
+          : el("button", { type: "button", class: "boton boton-linea", texto: "Elegir otro documento", onclick: volver })
+      ]));
+    });
     cont.appendChild(form);
     refrescar(form);
+    // Con la sesión iniciada, los datos de contacto ya quedan escritos
+    var ses = null; try { ses = JSON.parse(localStorage.getItem("ga_cuenta") || "null"); } catch (x) {}
+    if (ses) [["_nombre", ses.nombre], ["_correo", ses.correo], ["_whatsapp", ses.whatsapp]].forEach(function (x) {
+      var inp = form.querySelector('[data-campo="' + x[0] + '"] input'); if (inp && x[1] && !inp.value) inp.value = x[1];
+    });
+    irPaso(form, 0, true);
     $("#catalogo").hidden = true; cont.hidden = false; $("#pago").hidden = true;
     cont.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  function irPaso(form, n, sinMover) {
+    n = Math.max(0, Math.min(n, form._pasos.length - 1)); form._paso = n;
+    form._pasos.forEach(function (sec, i) { sec.hidden = i !== n; });
+    [].forEach.call(form._guia.children, function (li, i) { li.className = i < n ? "hecho" : i === n ? "activo" : ""; });
+    if (!sinMover) $("#formulario").scrollIntoView({ behavior: "smooth", block: "start" });
   }
   function volver() { $("#formulario").hidden = true; $("#pago").hidden = true; $("#catalogo").hidden = false; $("#catalogo").scrollIntoView({ behavior: "smooth" }); }
 
@@ -1053,13 +1088,13 @@
   function validar(form) {
     var faltan = [];
     [].forEach.call(form.querySelectorAll("[data-campo]"), function (c) {
-      if (c.hidden || c.closest("[hidden]")) return;
+      if (c.hidden || c.closest("[hidden]:not(.paso-form)")) return;
       var v = c._leer(), req = c._def.req !== 0;
       var vacio = Array.isArray(v) ? !v.length : !v, malo = c._invalido && c._invalido();
       c.classList.toggle("falta", (req && vacio) || malo);
       if ((req && vacio) || malo) faltan.push(c);
     });
-    var correo = form.querySelector('[data-campo="_correo"]');
+    var correo = form.querySelector('[data-campo="_correo"]:not([hidden])');
     if (correo && correo._leer() && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(correo._leer())) { correo.classList.add("falta"); faltan.push(correo); }
     return faltan;
   }
@@ -1068,7 +1103,13 @@
     var form = e.target, err = $("#doc-error"), boton = $("#doc-enviar"), d = DOCS[actual];
     err.hidden = true;
     var faltan = validar(form);
-    if (faltan.length) { err.textContent = "Faltan datos o hay un dato por corregir. Los marcamos en rojo."; err.hidden = false; faltan[0].scrollIntoView({ behavior: "smooth", block: "center" }); return; }
+    if (faltan.length) {
+      // Si lo que falta está en un paso anterior, se vuelve a ese paso
+      var en = form._pasos ? form._pasos.indexOf(faltan[0].closest(".paso-form")) : -1;
+      if (en >= 0 && en !== form._paso) irPaso(form, en, true);
+      err.textContent = "Faltan datos o hay un dato por corregir. Los marcamos en rojo."; err.hidden = en >= 0 && en !== form._pasos.length - 1;
+      setTimeout(function () { faltan[0].scrollIntoView({ behavior: "smooth", block: "center" }); }, 50); return;
+    }
     if (!$("#acepta").checked || !$("#autoriza").checked) { err.textContent = "Para continuar, marque las dos casillas del final."; err.hidden = false; return; }
     var datos = { accion: "borrador", tipo: actual, nivel: (form.querySelector('input[name="nivel"]:checked') || {}).value || "auto", partes: {}, campos: {}, acepta: true, autorizaDatos: true };
     [].forEach.call(form.querySelectorAll("[data-rol]"), function (g) { if (!g.hidden) datos.partes[g.getAttribute("data-rol")] = g._leer(); });

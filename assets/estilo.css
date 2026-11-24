@@ -365,3 +365,61 @@ html.sin-scroll { overflow: hidden; }
 .progreso li { width: 3rem; height: 3rem; border-radius: 50%; border: 2px solid var(--oro); display: grid; place-items: center; color: var(--niebla); font-weight: 700; }
 .progreso li.lleno { background: var(--oro); color: #0A1628; }
 .progreso-texto { color: var(--oro-claro); font-weight: 600; }
+
+/* Documentos en línea: guía de pasos del formulario */
+.pasos-form { list-style: none; display: flex; flex-wrap: wrap; gap: .6rem; padding: 0; margin: 1.6rem 0 1.4rem; }
+.pasos-form li { display: flex; align-items: center; gap: .55rem; padding: .4rem .95rem .4rem .4rem; border: 1px solid var(--filete-suave); border-radius: 999px; color: var(--niebla); font-weight: 600; font-size: .95rem; }
+.pasos-form li span { width: 1.85rem; height: 1.85rem; border-radius: 50%; display: grid; place-items: center; border: 1px solid var(--oro); color: var(--oro-claro); font-size: .85rem; }
+.pasos-form li.activo { border-color: var(--oro); color: var(--marfil); }
+.pasos-form li.activo span { background: var(--oro); color: #0A1628; }
+.pasos-form li.hecho span { background: rgba(201, 168, 92, .28); color: var(--marfil); }
+.paso-form[hidden] { display: none; }
+@media (max-width: 700px) {
+  .pasos-form li:not(.activo) { font-size: 0; gap: 0; padding: .35rem; }
+  .pasos-form li:not(.activo) span { font-size: .85rem; }
+}
+
+/* Botón de cuenta en el menú: «Iniciar sesión / Registrarse» o «Mi cuenta» */
+.menu a.enlace-cuenta { display: inline-flex; align-items: center; gap: .45rem; min-height: 44px; padding: .45rem 1rem; border: 1px solid var(--oro); border-radius: 999px; color: var(--oro-claro); white-space: nowrap; }
+.menu a.enlace-cuenta:hover { background: rgba(201, 168, 92, .12); }
+.menu a.enlace-cuenta svg { width: 1.1rem; height: 1.1rem; flex: none; }
+.enlace-cuenta .corto { display: none; }
+@media (max-width: 1240px) { .menu { gap: 1.2rem; } }
+@media (max-width: 1000px) {
+  .menu a.enlace-cuenta:not(.boton) { display: inline-flex; padding: .4rem .8rem; }
+  .enlace-cuenta .largo { display: none; }
+  .enlace-cuenta .corto { display: inline; }
+}
+
+/* Banda del programa de fidelización */
+.fidelidad { background: linear-gradient(90deg, rgba(201, 168, 92, .16), rgba(201, 168, 92, .04)); border-top: 1px solid var(--filete); border-bottom: 1px solid var(--filete); }
+.fidelidad .envoltura { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem 3rem; padding-block: 2.2rem; flex-wrap: wrap; }
+.fidelidad h2 { font-size: clamp(1.6rem, 3vw, 2.3rem); color: var(--marfil); margin: .5rem 0 .6rem; }
+.fidelidad-texto { max-width: 44rem; }
+.fidelidad-texto p:not(.ante) { color: var(--niebla); }
+.aviso-fidelidad { margin: 1.6rem 0 0; }
+.aviso-fidelidad a { color: var(--oro-claro); }
+
+/* Mi cuenta: pestañas */
+.pestanas { display: flex; gap: .6rem; flex-wrap: wrap; margin: 1.6rem 0 .4rem; }
+.pestanas button { min-height: 44px; padding: .55rem 1.2rem; border-radius: 999px; border: 1px solid var(--filete-suave); background: transparent; color: var(--niebla); font: inherit; font-weight: 600; cursor: pointer; }
+.pestanas button[aria-selected="true"] { border-color: var(--oro); background: var(--oro); color: #0A1628; }
+
+/* Menú: que el nombre y los enlaces no se partan y quepa el botón de cuenta */
+.marca { flex: none; }
+.marca span { white-space: nowrap; }
+.menu a { white-space: nowrap; }
+.menu .boton-wa { display: inline-flex; align-items: center; gap: .45rem; }
+.menu .boton-wa svg { width: 1.15rem; height: 1.15rem; flex: none; }
+[data-solo-con-sesion][hidden], [data-solo-sin-sesion][hidden] { display: none !important; }
+@media (max-width: 1360px) { .menu a[href$="#cita"], .menu a[href$="#oficina"] { display: none; } }
+@media (max-width: 1240px) { .enlace-cuenta .largo { display: none; } .enlace-cuenta .corto { display: inline; } }
+@media (max-width: 480px) {
+  .menu { gap: .55rem; }
+  .menu .boton-wa { padding: .5rem .75rem; }
+  .menu .boton-wa span { display: none; }
+  .menu a.enlace-cuenta:not(.boton) { padding: .4rem .7rem; }
+}
+/* Banda de fidelización con más presencia */
+.fidelidad { background: radial-gradient(circle at 88% 50%, rgba(201, 168, 92, .22), transparent 55%), #0E1F38; }
+@media (max-width: 560px) { .marca span { white-space: normal; } .marca { flex: 0 1 auto; min-width: 0; } }

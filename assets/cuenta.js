@@ -17,9 +17,9 @@
   }
   function api(cuerpo) { return fetch(cfg.api, { method: "POST", body: JSON.stringify(cuerpo) }).then(function (r) { return r.json(); }); }
   function cel(v) { return String(v || "").replace(/\D/g, "").replace(/^57(?=3\d{9}$)/, ""); }
-  function guardar(x) { try { localStorage.setItem("ga_cuenta", JSON.stringify(x)); } catch (e) {} }
+  function guardar(x) { try { localStorage.setItem("ga_cuenta", JSON.stringify(x)); } catch (e) {} if (window.gaSesion) window.gaSesion(); }
   function leer() { try { return JSON.parse(localStorage.getItem("ga_cuenta") || "null"); } catch (e) { return null; } }
-  function olvidar() { try { localStorage.removeItem("ga_cuenta"); } catch (e) {} }
+  function olvidar() { try { localStorage.removeItem("ga_cuenta"); } catch (e) {} if (window.gaSesion) window.gaSesion(); }
   function campo(etiqueta, control, ayuda, ancho) {
     var c = el("div", { class: "campo" + (ancho ? " ancho" : "") }, [el("label", { texto: etiqueta }), control]);
     if (ayuda) c.appendChild(el("p", { class: "ayuda", texto: ayuda }));
@@ -56,25 +56,30 @@
     caja.appendChild(acciones);
     caja.appendChild(salida);
     caja.appendChild(el("p", { class: "aviso-datos", texto: "Cuentan los trámites pagados con este celular o este correo: documentos en línea, certificados y servicios en la oficina. Las minutas gratis no suman. El código vence a los 60 días." }));
-    caja.appendChild(el("p", {}, [el("a", { href: "#", class: "enlace-wa", texto: "Salir de mi cuenta en este dispositivo", onclick: function (ev) { ev.preventDefault(); olvidar(); inicio(); } })]));
+    caja.appendChild(el("p", {}, [el("a", { href: "#", class: "enlace-wa", texto: "Cerrar sesión en este dispositivo", onclick: function (ev) { ev.preventDefault(); olvidar(); inicio(null, "entrar"); } })]));
     raiz.appendChild(caja);
   }
 
-  // ---------- Inicio: registro y consulta ----------
-  function inicio(msg) {
+  // ---------- Inicio: cliente nuevo (registro) o iniciar sesión ----------
+  function inicio(msg, pestana, previo) {
     raiz.innerHTML = "";
+    previo = previo || {};
+    var q = new URLSearchParams(location.search);
+    pestana = pestana || (q.has("entrar") ? "entrar" : "registro");
     var caja = el("div", { id: "pago" });
     caja.appendChild(el("p", { class: "ante", texto: "Programa de fidelización" }));
     caja.appendChild(el("h1", { class: "titulo-app", texto: "Una minuta gratis por cada " + CADA + " trámites" }));
     caja.appendChild(el("p", { texto: "Regístrese gratis. Por cada " + CADA + " trámites que haga con nosotros (documentos en línea, certificados o servicios en la oficina) le regalamos una minuta en línea, la que usted quiera. El código le llega solo a su correo." }));
+    var bRegistro = el("button", { type: "button", role: "tab", texto: "Cliente nuevo: registrarme" });
+    var bEntrar = el("button", { type: "button", role: "tab", texto: "Ya tengo cuenta: iniciar sesión" });
+    caja.appendChild(el("div", { class: "pestanas", role: "tablist" }, [bRegistro, bEntrar]));
     if (msg) caja.appendChild(el("p", { class: "error", role: "alert", texto: msg }));
 
     // Registro
-    var nombre = el("input", { type: "text", autocomplete: "name" }), celular = el("input", { type: "tel", inputmode: "numeric", autocomplete: "tel", placeholder: "Ej. 3001234567" });
-    var correo = el("input", { type: "email", autocomplete: "email" }), autoriza = el("input", { type: "checkbox" }), mensajes = el("input", { type: "checkbox" });
-    var error = el("p", { class: "error", hidden: true, role: "alert" }), boton = el("button", { class: "boton boton-oro", type: "submit", texto: "Registrarme" });
+    var nombre = el("input", { type: "text", autocomplete: "name", value: previo.nombre || "" }), celular = el("input", { type: "tel", inputmode: "numeric", autocomplete: "tel", placeholder: "Ej. 3001234567", value: previo.whatsapp || "" });
+    var correo = el("input", { type: "email", autocomplete: "email", value: previo.correo || "" }), autoriza = el("input", { type: "checkbox" }), mensajes = el("input", { type: "checkbox" });
+    var error = el("p", { class: "error", hidden: true, role: "alert" }), boton = el("button", { class: "boton boton-oro", type: "submit", texto: "Registrarme gratis" });
     var f = el("form", { novalidate: true }, [
-      el("h2", { class: "bloque-titulo", texto: "Registrarme" }),
       el("div", { class: "rejilla" }, [campo("Nombre completo", nombre), campo("Celular con WhatsApp", celular), campo("Correo electrónico", correo, "Use el mismo celular o correo cuando pida sus trámites, para que se los contemos.", true)]),
       el("label", { class: "acepto" }, [autoriza, el("span", {}, ["Autorizo el uso de mis datos para el registro y el programa de fidelización, según la ", el("a", { href: "/politica-de-datos.html", target: "_blank", texto: "política de tratamiento de datos" }), "."])]),
       el("label", { class: "acepto" }, [mensajes, el("span", {}, ["Quiero recibir recordatorios y beneficios de Guzmán y Abogados por correo y WhatsApp. ", el("span", { class: "opcional", texto: "(opcional; puede retirarlo cuando quiera)" })])]),
@@ -92,16 +97,15 @@
       error.hidden = true; boton.disabled = true; boton.textContent = "Registrando…";
       api({ accion: "registro", nombre: nombre.value.trim(), whatsapp: wa, correo: co, autorizaDatos: true, autorizaMensajes: mensajes.checked }).then(function (r) {
         if (!r.ok) throw new Error(r.error || "No pudimos registrarlo");
-        var datos = { whatsapp: wa, correo: co }; guardar(datos); avance(r, datos);
-      }).catch(function (e) { boton.disabled = false; boton.textContent = "Registrarme"; error.hidden = false; error.textContent = (e && e.message ? e.message + ". " : "") + "Si el problema sigue, escríbanos por WhatsApp al 320 563 9603."; });
+        var datos = { whatsapp: wa, correo: co, nombre: r.nombreCompleto || nombre.value.trim().toUpperCase() }; guardar(datos); avance(r, datos);
+      }).catch(function (e) { boton.disabled = false; boton.textContent = "Registrarme gratis"; error.hidden = false; error.textContent = (e && e.message ? e.message + ". " : "") + "Si el problema sigue, escríbanos por WhatsApp al 320 563 9603."; });
     });
-    caja.appendChild(f);
 
-    // Consulta
-    var celular2 = el("input", { type: "tel", inputmode: "numeric", autocomplete: "tel", placeholder: "Ej. 3001234567" }), correo2 = el("input", { type: "email", autocomplete: "email" });
-    var error2 = el("p", { class: "error", hidden: true, role: "alert" }), boton2 = el("button", { class: "boton boton-linea", type: "submit", texto: "Ver mi avance" });
+    // Iniciar sesión
+    var celular2 = el("input", { type: "tel", inputmode: "numeric", autocomplete: "tel", placeholder: "Ej. 3001234567", value: previo.whatsapp || "" }), correo2 = el("input", { type: "email", autocomplete: "email", value: previo.correo || "" });
+    var error2 = el("p", { class: "error", hidden: true, role: "alert" }), boton2 = el("button", { class: "boton boton-oro", type: "submit", texto: "Iniciar sesión" });
     var g = el("form", { novalidate: true }, [
-      el("h2", { class: "bloque-titulo", texto: "Ya estoy registrado" }),
+      el("p", { class: "ayuda", texto: "Escriba el celular y el correo con los que se registró. No necesita contraseña." }),
       el("div", { class: "rejilla" }, [campo("Celular con WhatsApp", celular2), campo("Correo electrónico", correo2)]),
       error2, el("div", { class: "acciones" }, [boton2])
     ]);
@@ -111,18 +115,31 @@
       if (!/^3\d{9}$/.test(datos.whatsapp) || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(datos.correo)) { error2.hidden = false; error2.textContent = "Escriba su celular de 10 dígitos y su correo."; return; }
       error2.hidden = true; boton2.disabled = true; boton2.textContent = "Consultando…";
       api({ accion: "miCuenta", whatsapp: datos.whatsapp, correo: datos.correo }).then(function (r) {
-        boton2.disabled = false; boton2.textContent = "Ver mi avance";
+        boton2.disabled = false; boton2.textContent = "Iniciar sesión";
+        if (!r.ok && r.noRegistrado) { inicio("Todavía no está registrado con ese celular y ese correo. Regístrese aquí: es gratis.", "registro", datos); return; }
         if (!r.ok) { error2.hidden = false; error2.textContent = r.error || "No encontramos su registro."; return; }
-        guardar(datos); avance(r, datos);
-      }).catch(function () { boton2.disabled = false; boton2.textContent = "Ver mi avance"; error2.hidden = false; error2.textContent = "No hubo conexión. Intente de nuevo."; });
+        datos.nombre = r.nombreCompleto || r.nombre || ""; guardar(datos); avance(r, datos);
+      }).catch(function () { boton2.disabled = false; boton2.textContent = "Iniciar sesión"; error2.hidden = false; error2.textContent = "No hubo conexión. Intente de nuevo."; });
     });
-    caja.appendChild(g);
+
+    function mostrar(cual) {
+      f.hidden = cual !== "registro"; g.hidden = cual !== "entrar";
+      bRegistro.setAttribute("aria-selected", String(cual === "registro")); bEntrar.setAttribute("aria-selected", String(cual === "entrar"));
+    }
+    bRegistro.addEventListener("click", function () { mostrar("registro"); });
+    bEntrar.addEventListener("click", function () { mostrar("entrar"); });
+    caja.appendChild(f); caja.appendChild(g);
     caja.appendChild(el("p", { class: "aviso-datos", texto: "La minuta gratis sirve para cualquier documento en línea; no aplica a certificados. Cuentan los trámites pagados con el mismo celular o correo, también los que ya hizo con nosotros." }));
     raiz.appendChild(caja);
+    mostrar(pestana);
   }
 
   var guardado = leer();
   if (guardado && guardado.whatsapp && guardado.correo && cfg.api) {
-    api({ accion: "miCuenta", whatsapp: guardado.whatsapp, correo: guardado.correo }).then(function (r) { if (r.ok) avance(r, guardado); else { olvidar(); inicio(); } }).catch(function () { inicio("No hubo conexión. Recargue la página."); });
+    api({ accion: "miCuenta", whatsapp: guardado.whatsapp, correo: guardado.correo }).then(function (r) {
+      if (!r.ok) { olvidar(); inicio(); return; }
+      if (r.nombreCompleto && guardado.nombre !== r.nombreCompleto) { guardado.nombre = r.nombreCompleto; guardar(guardado); }
+      avance(r, guardado);
+    }).catch(function () { inicio("No hubo conexión. Recargue la página."); });
   } else inicio();
 })();

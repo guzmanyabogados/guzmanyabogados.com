@@ -2,9 +2,9 @@
 // Páginas: primero la red (para que siempre salga lo último) y, sin conexión, la copia guardada.
 // Scripts y estilos también primero la red, para que un cambio llegue de inmediato.
 // Imágenes: primero la copia guardada.
-const VERSION = "ga-v5";
+const VERSION = "ga-v6";
 const BASICOS = ["/", "/index.html", "/documentos.html", "/certificados.html", "/pago-recibido.html", "/politica-de-datos.html", "/mi-cuenta.html",
-  "/assets/estilo.css", "/assets/emblema-dorado.png", "/assets/icono-192.png", "/assets/icono-512.png"];
+  "/assets/estilo.css", "/assets/sesion.js", "/assets/emblema-dorado.png", "/assets/icono-192.png", "/assets/icono-512.png"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(VERSION).then((c) => c.addAll(BASICOS).catch(() => null)).then(() => self.skipWaiting()));
