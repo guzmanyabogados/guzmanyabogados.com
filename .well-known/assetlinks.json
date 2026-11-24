@@ -1,10 +1,13 @@
 [
   {
-    "relation": ["delegate_permission/common.handle_all_urls"],
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
     "target": {
       "namespace": "android_app",
       "package_name": "com.guzmanyabogados.app",
       "sha256_cert_fingerprints": [
+        "9E:1B:FB:96:A4:D3:D1:0D:8D:44:52:3A:65:1D:3F:29:BA:43:11:A0:EF:1E:32:AB:45:CD:85:92:48:EA:FD:AA",
         "9B:65:9B:A5:8C:BB:3F:DE:9C:6F:3A:56:D8:A6:B9:81:3F:57:F5:F5:5B:5F:96:E6:32:97:BD:3F:C9:B5:46:49"
       ]
     }
