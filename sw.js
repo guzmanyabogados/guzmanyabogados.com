@@ -2,7 +2,7 @@
 // Páginas: primero la red (para que siempre salga lo último) y, sin conexión, la copia guardada.
 // Scripts y estilos también primero la red, para que un cambio llegue de inmediato.
 // Imágenes: primero la copia guardada.
-const VERSION = "ga-v7";
+const VERSION = "ga-v8";
 const BASICOS = ["/", "/index.html", "/documentos.html", "/certificados.html", "/pago-recibido.html", "/politica-de-datos.html", "/mi-cuenta.html",
   "/assets/estilo.css", "/assets/sesion.js", "/assets/emblema-dorado.png", "/assets/icono-192.png", "/assets/icono-512.png"];
 
