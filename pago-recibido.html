@@ -174,10 +174,10 @@
           boton.textContent = "Enviar el documento por WhatsApp";
         } else if (servicio === "documento" && cfg.api) {
           titulo.textContent = "Recibimos el pago de su documento";
-          texto.textContent = "Escriba abajo el código de su documento para descargarlo. Es el que empieza por GA- y aparece en la pantalla donde pagó. Si no lo tiene, escríbanos por WhatsApp y se lo enviamos.";
+          texto.textContent = "Si hizo su documento por WhatsApp, toque el botón y se lo enviamos en PDF en ese mismo chat. Si lo hizo en esta página, escriba abajo el código que empieza por GA- para descargarlo.";
           manual.hidden = false;
-          mensaje("pagué un documento en línea y no tengo el código.");
-          boton.textContent = "Escribir por WhatsApp";
+          mensaje("pagué mi documento. Por favor envíemelo por aquí.");
+          boton.textContent = "Recibir mi documento por WhatsApp";
         } else {
           texto.textContent = "Toque el botón para escribirnos por WhatsApp y continuamos con su trámite.";
         }
