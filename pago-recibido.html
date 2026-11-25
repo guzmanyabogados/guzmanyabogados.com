@@ -158,7 +158,7 @@
         estado.textContent = "Pago aprobado";
         titulo.textContent = "Gracias, recibimos su pago";
         if (servicio === "consulta") {
-          texto.textContent = "Toque el botón para escribirnos por WhatsApp y le confirmamos la fecha y la hora de su cita con el abogado.";
+          texto.textContent = "Toque el botón para escribirnos por WhatsApp y escoja el día y la hora de su cita con el abogado.";
           mensaje("acabo de pagar la consulta con el abogado. Quiero confirmar mi cita.");
         } else if (servicio === "tradicion" || servicio === "ficha" || servicio === "avaluo") {
           var nombre = servicio === "tradicion" ? "el certificado de tradición y libertad" : (servicio === "ficha" ? "la ficha predial" : "el certificado de avalúo catastral");
