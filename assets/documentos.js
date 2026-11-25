@@ -106,7 +106,7 @@
     promesa: {
       nombre: "Promesa de compraventa de inmueble", corto: "Promesa de compraventa", precio: { auto: 70000, abogado: 200000 },
       desc: "Casa, apartamento, lote o local. Contado, cuotas, cesantías o crédito.",
-      consejos: ["La promesa solo obliga si fija la fecha, la hora y la notaría de la escritura y determina bien el inmueble (artículo 89 de la Ley 153 de 1887). Por eso esos datos son obligatorios.", "Revise el certificado de tradición antes de firmar. Lo sacamos en línea por $29.000."],
+      consejos: ["La promesa solo obliga si fija la fecha, la hora y la notaría de la escritura y determina bien el inmueble (artículo 89 de la Ley 153 de 1887). Por eso esos datos son obligatorios.", "Revise el certificado de tradición antes de firmar. Lo sacamos en línea por $32.000."],
       roles: [{ id: "vendedor", et: "Quien promete vender", min: 1, max: 3, p: { civil: 1, contacto: 1 } },
         { id: "comprador", et: "Quien promete comprar", min: 1, max: 3, p: { civil: 1, contacto: 1 } }],
       campos: [

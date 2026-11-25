@@ -141,7 +141,7 @@
     e.preventDefault(); var c = document.getElementById("doc-codigo").value.trim().toUpperCase(); if (c) emitir(c);
   });
   var linksDocs = Object.keys(cfg.enlaces || {}).map(function (k) { return String(cfg.enlaces[k]).split("/").pop(); });
-  var porLink = { ZLHaPk: "consulta", tnTjo2: "tradicion", D2PQdn: "ficha", "1zlIqO": "ficha", B6tFxu: "avaluo", WKMW3L: "firma", rJvdYm: "firma" };
+  var porLink = { ZLHaPk: "consulta", kUyWal: "tradicion", tnTjo2: "tradicion", yJ1D8j: "revision", oL1kl0: "titulos", W5wj11: "redam", D2PQdn: "ficha", "1zlIqO": "ficha", B6tFxu: "avaluo", WKMW3L: "firma", rJvdYm: "firma" };
   var mensaje = function (que) {
     boton.href = "https://wa.me/573205639603?text=" + encodeURIComponent("Hola, " + que + " Referencia de pago: " + id + ".");
   };
@@ -151,7 +151,7 @@
     .then(function (j) {
       var d = j && j.data; if (!d) return;
       var s = d.status, monto = d.amount_in_cents;
-      var servicios = {6000000: "consulta", 2900000: "tradicion", 3200000: "tradicion", 6900000: "ficha", 7500000: "ficha", 9000000: "avaluo", 4900000: "firma", 1900000: "firma"};
+      var servicios = {6000000: "consulta", 2900000: "tradicion", 3200000: "tradicion", 35000000: "titulos", 1500000: "redam", 6900000: "ficha", 7500000: "ficha", 9000000: "avaluo", 4900000: "firma", 1900000: "firma"};
       var link = d.payment_link_id || "";
       var servicio = porLink[link] || (linksDocs.indexOf(link) >= 0 ? "documento" : "") || servicios[monto] || (monto % 4900000 === 0 || monto % 1900000 === 0 ? "firma" : "");
       if (s === "APPROVED") {
@@ -163,10 +163,23 @@
         } else if (servicio === "tradicion" || servicio === "ficha" || servicio === "avaluo") {
           var nombre = servicio === "tradicion" ? "el certificado de tradición y libertad" : (servicio === "ficha" ? "la ficha predial" : "el certificado de avalúo catastral");
           if (cert && cfg.api) { pagoCert(cert.codigo, nombre, servicio); return; }
-          // Pagó sin llenar el formulario (por ejemplo, desde un enlace que le compartieron): se le piden los datos del inmueble
-          if (cfg.api) { formularioCert(servicio); return; }
-          texto.textContent = "Escríbanos por WhatsApp con la matrícula o la dirección del inmueble y su correo, y se lo enviamos en PDF.";
-          mensaje("acabo de pagar " + nombre + " en línea.");
+          // Pagó sin llenar el formulario (por WhatsApp o desde un enlace que le compartieron): elige si sigue por el chat o llena los datos aquí
+          mensaje("acabo de pagar " + nombre + ".");
+          boton.textContent = "Lo pedí por WhatsApp";
+          if (cfg.api) {
+            texto.textContent = "Si lo pidió por WhatsApp, toque el botón y se lo enviamos en PDF en ese mismo chat. Si no, escriba aquí los datos del inmueble.";
+            var datos = enlace("boton-linea", "/certificados.html?t=" + servicio + "&tx=" + encodeURIComponent(id), "Escribir los datos del inmueble");
+            boton.parentNode.insertBefore(datos, boton.nextSibling);
+          } else {
+            texto.textContent = "Toque el botón y escríbanos por WhatsApp la matrícula o la dirección del inmueble y su correo, y se lo enviamos en PDF.";
+          }
+        } else if (servicio === "revision" || servicio === "titulos") {
+          texto.textContent = "Toque el botón y envíenos por WhatsApp los documentos que quiere que revise el abogado. Si ya los envió, no tiene que hacer nada más; le respondemos por ese chat.";
+          mensaje(servicio === "titulos" ? "acabo de pagar el estudio de títulos." : "acabo de pagar la revisión de documentos por el abogado.");
+          boton.textContent = "Enviar los documentos por WhatsApp";
+        } else if (servicio === "redam") {
+          texto.textContent = "Toque el botón para confirmarnos por WhatsApp el nombre completo y la cédula de la persona, y le enviamos el certificado del REDAM en PDF.";
+          mensaje("acabo de pagar el certificado del REDAM.");
           boton.textContent = "Escribir por WhatsApp";
         } else if (servicio === "firma") {
           texto.textContent = "Si todavía no nos ha enviado el documento, toque el botón y envíelo en PDF por WhatsApp, o envíelo al correo notificaciones@guzmanyabogados.com. Le avisamos cuando esté listo.";

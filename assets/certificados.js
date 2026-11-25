@@ -4,7 +4,7 @@
   var cfg = window.GA_CONFIG || {};
   var ORIP = window.GA_ORIP || [], MUN = window.GA_MUNICIPIOS || [];
   var SERVICIOS = {
-    tradicion: { nombre: "Certificado de tradición y libertad", precio: 29000, pago: "https://checkout.wompi.co/l/tnTjo2" },
+    tradicion: { nombre: "Certificado de tradición y libertad", precio: 32000, pago: "https://checkout.wompi.co/l/kUyWal" },
     ficha: { nombre: "Ficha predial", precio: 75000, pago: "https://checkout.wompi.co/l/1zlIqO" },
     avaluo: { nombre: "Certificado de avalúo catastral", precio: 90000, pago: "https://checkout.wompi.co/l/B6tFxu" }
   };
