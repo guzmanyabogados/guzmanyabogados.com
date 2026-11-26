@@ -169,6 +169,8 @@ p { margin: 0; }
 .dato h3 { font-family: var(--texto); font-size: .74rem; letter-spacing: .24em; text-transform: uppercase; color: var(--oro); font-weight: 700; }
 .dato p { font-size: 1.06rem; }
 .dato .boton { margin-top: .7rem; justify-self: start; }
+.botones-mapa { display: flex; flex-wrap: wrap; gap: .6rem; }
+.botones-mapa .boton { margin-top: .4rem; }
 .horario { width: 100%; border-collapse: collapse; font-size: 1.02rem; }
 .horario td { padding: .35rem 0; border-bottom: 1px dotted var(--filete); font-variant-numeric: tabular-nums; }
 .horario td:last-child { text-align: right; color: var(--oro-claro); }
