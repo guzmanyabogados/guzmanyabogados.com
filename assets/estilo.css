@@ -427,3 +427,47 @@ html.sin-scroll { overflow: hidden; }
 @media (max-width: 560px) { .marca span { white-space: normal; } .marca { flex: 0 1 auto; min-width: 0; } }
 /* App de Google Play: sin certificados ni pagos digitales por fuera de Google Play */
 .app-play [data-no-app] { display: none !important; }
+
+/* Guías paso a paso */
+.guia-cab { padding-block: clamp(2.8rem, 6vw, 4.5rem) 2.2rem; border-bottom: 1px solid var(--filete-suave); background: linear-gradient(180deg, var(--noche) 0%, #0C1C35 100%); }
+.guia-cab h1 { font-size: clamp(2.4rem, 5vw, 3.8rem); color: var(--marfil); margin-top: 1rem; }
+.guia-cab .entrada { font-size: 1.15rem; color: var(--niebla); max-width: 44rem; margin-top: 1.1rem; }
+.guia { display: grid; grid-template-columns: minmax(0, 1fr) 20rem; gap: clamp(2rem, 4vw, 3.5rem); align-items: start; padding-block: 2.6rem 4rem; }
+.guia-texto { display: grid; gap: 2.2rem; max-width: 46rem; }
+.guia-texto h2 { font-size: clamp(1.7rem, 3vw, 2.2rem); color: var(--oro-claro); margin-bottom: .8rem; }
+.guia-texto p { color: var(--niebla); font-size: 1.05rem; }
+.guia-texto p + p { margin-top: .7rem; }
+.guia-texto ul { margin: 0; padding-left: 1.2rem; display: grid; gap: .55rem; color: var(--marfil); font-size: 1.05rem; }
+.guia-texto li::marker { color: var(--oro); }
+.guia-pasos { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; counter-reset: gp; }
+.guia-pasos li { counter-increment: gp; display: grid; grid-template-columns: 2.6rem 1fr; gap: .2rem 1rem; padding: 1rem 1.1rem; border: 1px solid var(--filete-suave); background: rgba(10, 22, 40, .45); }
+.guia-pasos li::before { content: counter(gp); grid-row: span 2; width: 2.4rem; height: 2.4rem; border-radius: 50%; display: grid; place-items: center; background: var(--oro); color: var(--noche); font-weight: 700; font-size: 1.1rem; }
+.guia-pasos b { color: var(--marfil); font-size: 1.05rem; }
+.guia-pasos span { color: var(--niebla); }
+.guia-texto .guia-opciones { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; }
+.guia-opciones li { padding: 1.1rem 1.2rem; border: 1px solid var(--filete); display: grid; gap: .45rem; }
+.guia-opciones b { color: var(--marfil); font-size: 1.08rem; }
+.guia-opciones p { font-size: 1rem; }
+.guia-opciones .precio-linea { color: var(--oro-claro); font-weight: 700; }
+.guia-opciones a { color: var(--oro-claro); font-weight: 700; }
+.guia-caja { position: sticky; top: 100px; border: 1px solid var(--filete); background: linear-gradient(180deg, rgba(21, 41, 74, .92), rgba(15, 35, 64, .92)); padding: 1.6rem 1.4rem; display: grid; gap: .9rem; }
+.guia-caja .valor { font-family: var(--display); font-size: 2.4rem; font-weight: 700; color: var(--oro-claro); line-height: 1; font-variant-numeric: lining-nums; }
+.guia-caja .valor small { display: block; font-family: var(--texto); font-size: .85rem; font-weight: 400; color: var(--niebla); margin-top: .35rem; }
+.guia-caja p { color: var(--niebla); font-size: .95rem; }
+.guia-caja .boton { width: 100%; }
+.guia-faq details { border-top: 1px solid var(--filete-suave); padding: .9rem 0; }
+.guia-faq details:last-child { border-bottom: 1px solid var(--filete-suave); }
+.guia-faq summary { cursor: pointer; color: var(--marfil); font-weight: 700; font-size: 1.05rem; }
+.guia-faq details p { margin-top: .6rem; }
+.guia-oficina { border-left: 3px solid var(--oro); padding: 1rem 1.2rem; background: rgba(10, 22, 40, .45); }
+.guia-oficina p { font-size: 1rem; }
+.guia-otras { display: flex; flex-wrap: wrap; gap: .6rem; }
+.guia-otras a { border: 1px solid var(--filete); padding: .45rem .85rem; color: var(--marfil); text-decoration: none; font-size: .95rem; }
+.guia-otras a:hover { border-color: var(--oro); color: var(--oro-claro); }
+.guias-lista .tarjeta a.boton { margin-top: .4rem; }
+@media (max-width: 900px) {
+  .guia { grid-template-columns: 1fr; }
+  .guia-caja { position: static; order: -1; }
+}
+.despues p + p { margin-top: .6rem; }
+.guias-lista { padding-block: 2.6rem 4rem; } .guias-lista .tarjetas { margin-top: 0; }
